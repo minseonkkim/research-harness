@@ -196,7 +196,7 @@ const results = await pipeline(
     '먼저 이 대상을 정확히 특정한다. 같은 이름의 다른 앱·서비스와 혼동하지 않는다. ' +
     '특정하지 못하면 identified=false로 하고 무엇이 검색됐는지 identity_note에 적은 뒤, 추측으로 항목을 채우지 않는다.\n\n' +
     '## 채울 항목 (fields 배열에 key마다 하나씩)\n' + fieldSpec + '\n\n' +
-    '규칙: 값마다 실제로 읽은 출처 URL을 단다. 회사 자체 블로그·보도자료는 note에 "자사 출처"라고 표시한다. ' +
+    '규칙: 값은 한국어로 쓴다(고유명사·원문 인용 제외). 값마다 실제로 읽은 출처 URL을 단다. 회사 자체 블로그·보도자료는 note에 "자사 출처"라고 표시한다. ' +
     '확인 못 한 값은 "미확인"으로 두고, 값 안에서 일부만 확인 못 한 점은 open_questions에 하나씩 적는다.\n\n' + TOOLS_NOTE,
     { label: 'collect:' + cell(t.name).slice(0, 40), phase: 'Collect', schema: COLLECT },
   ),
