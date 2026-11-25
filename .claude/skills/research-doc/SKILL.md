@@ -46,6 +46,7 @@ Workflow({
 ```
 
 - `template`은 양식 파일 내용을 JSON 값 그대로 넘긴다(문자열로 감싸지 않는다). 워크플로는 파일을 읽을 수 없다.
+- 결과의 `raw`는 보관해 둔다. 나중에 대상을 추가하면 `mode: "merge", raw: [...이전 raw, ...새 raw]`로 다시 작성·렌더링만 할 수 있다. raw를 잃었으면 `python3 -I scripts/raw_from_journal.py <journal.jsonl>...`로 실행 기록에서 복원한다.
 - 단계: Collect(대상당 1명) → Verify(`verify: true` 항목만 독립 검증) → Synthesize(요약·패턴·시사점 작성) → 스크립트가 표와 부록을 렌더링.
 
 ## 4. 문서 저장과 보고

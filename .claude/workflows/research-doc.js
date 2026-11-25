@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Discover', detail: 'find candidate targets (discover mode only)' },
     { title: 'Collect', detail: 'one agent per target fills every template field with sources' },
     { title: 'Verify', detail: 'independent check of fields marked verify:true' },
-    { title: 'Synthesize', detail: 'write cross-target sections from the verified data' },
+    { title: 'Synthesize', detail: 'write cross-target sections from the verified data (merge mode: only this phase)' },
   ],
 }
 
@@ -183,11 +183,14 @@ if (A.mode === 'discover') {
 }
 
 // ───────────────────────── research mode ─────────────────────────
-const targets = A.targets || []
-if (!targets.length) throw new Error('research 모드에는 args.targets가 필요합니다 (먼저 discover 모드로 후보를 찾으세요)')
+// merge 모드: 이전 실행들의 raw 결과(args.raw)를 합쳐 작성·렌더링만 다시 한다.
+//   raw는 research 모드 결과의 `raw` 배열, 또는 scripts/raw_from_journal.py로 뽑은 배열.
 const verifyKeys = T.fields.filter(f => f.verify).map(f => f.key)
+const targets = A.mode === 'merge' ? [] : (A.targets || [])
+if (A.mode !== 'merge' && !targets.length) throw new Error('research 모드에는 args.targets가 필요합니다 (먼저 discover 모드로 후보를 찾으세요)')
+if (A.mode === 'merge' && !(A.raw || []).length) throw new Error('merge 모드에는 args.raw가 필요합니다')
 
-const results = await pipeline(
+const results = A.mode === 'merge' ? A.raw : await pipeline(
   targets,
 
   // Stage 1 — collect
@@ -317,4 +320,10 @@ for (const r of rows) {
   out.push('')
 }
 
-return { mode: 'research', markdown: out.join('\n'), unverified, targets: rows.map(r => ({ name: r.name, identified: r.identified })) }
+return {
+  mode: A.mode || 'research',
+  markdown: out.join('\n'),
+  unverified,
+  targets: rows.map(r => ({ name: r.name, identified: r.identified })),
+  raw: results.filter(Boolean),   // 나중에 merge 모드로 다른 결과와 합칠 때 쓴다
+}
