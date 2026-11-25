@@ -1,0 +1,24 @@
+{
+  "id": "competitor-apps",
+  "title": "경쟁 앱 조사",
+  "description": "앱·서비스 여러 개를 같은 항목으로 조사하고, 기획 관점(lens)에서 시사점을 뽑는다.",
+  "fields": [
+    { "key": "identity", "label": "앱 정체", "desc": "정확한 앱 이름(국문/영문), 스토어 링크. 같은 이름의 다른 앱과 혼동하지 않았는지 근거를 남긴다.", "verify": true },
+    { "key": "developer", "label": "개발사·국가", "desc": "개발사 법인명과 국가", "verify": true },
+    { "key": "platforms", "label": "플랫폼", "desc": "iOS / Android / 웹 지원 여부", "verify": false },
+    { "key": "core_features", "label": "핵심 기능", "desc": "주요 기능 3~6개를 짧게", "verify": false },
+    { "key": "lens_features", "label": "관점 관련 기능", "desc": "조사 관점(lens)과 직접 관련된 기능과 동작 방식을 구체적으로. 화면 흐름, 자동화 수준, 사용자가 하는 일.", "verify": true },
+    { "key": "ai", "label": "AI 사용·처리 방식", "desc": "AI를 어디에 쓰는지, 온디바이스인지 클라우드인지. 확인 안 되면 '미확인'.", "verify": false },
+    { "key": "pricing", "label": "가격 모델", "desc": "무료/구독/일회성, 대표 가격", "verify": true },
+    { "key": "scale", "label": "평점·규모", "desc": "스토어 평점과 평가 수, 순위, 다운로드·가입자 수(출처 명시)", "verify": true },
+    { "key": "privacy", "label": "개인정보 처리", "desc": "데이터 저장 위치, 공유 범위, 추적 여부", "verify": false },
+    { "key": "complaints", "label": "주요 불만", "desc": "리뷰·커뮤니티에서 반복되는 불만", "verify": false }
+  ],
+  "sections": [
+    { "key": "summary", "title": "요약", "prompt": "조사 결과를 관점(lens)에 맞춰 3~5줄로 요약한다." },
+    { "key": "comparison", "title": "비교표", "builtin": "table", "fields": ["developer", "scale", "lens_features", "pricing"] },
+    { "key": "patterns", "title": "관점별 기능 패턴", "prompt": "대상들에서 관점(lens)과 관련된 기능을 패턴으로 묶는다. 패턴마다 어느 앱이 그렇게 하는지 근거를 단다." },
+    { "key": "implications", "title": "기획 시사점", "prompt": "관점(lens)의 기획에 바로 쓸 수 있는 제안을 정리한다. 근거가 있는 것과 추론인 것을 구분해 표시한다." },
+    { "key": "gaps", "title": "확인하지 못한 것", "builtin": "unverified" }
+  ]
+}
