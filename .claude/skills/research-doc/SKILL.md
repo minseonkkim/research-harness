@@ -46,14 +46,23 @@ Workflow({
 ```
 
 - `template`은 양식 파일 내용을 JSON 값 그대로 넘긴다(문자열로 감싸지 않는다). 워크플로는 파일을 읽을 수 없다.
-- 결과의 `raw`는 보관해 둔다. 나중에 대상을 추가하면 `mode: "merge", raw: [...이전 raw, ...새 raw]`로 다시 작성·렌더링만 할 수 있다. raw를 잃었으면 `python3 -I scripts/raw_from_journal.py <journal.jsonl>...`로 실행 기록에서 복원한다.
 - 단계: Collect(대상당 1명) → Verify(`verify: true` 항목만 독립 검증) → Synthesize(요약·패턴·시사점 작성) → 스크립트가 표와 부록을 렌더링.
 
 ## 4. 문서 저장과 보고
 
-1. 결과의 `markdown`을 `reports/<YYYY-MM-DD>-<주제-슬러그>.md`로 저장한다.
+1. 결과의 `markdown`을 `reports/<YYYY-MM-DD>-<주제-슬러그>.md`로, 결과의 `raw`를 `reports/data/<같은 이름>.raw.json`으로 저장하고 커밋·푸시한다. raw가 있어야 나중에 합칠 수 있다. raw를 잃었으면 `python3 -I scripts/raw_from_journal.py <journal.jsonl>...`로 실행 기록에서 복원한다.
 2. 사용자에게는 핵심 요약, 시사점, `unverified`(특정 실패한 대상 포함)를 짧게 전한다. 문서 전체를 채팅에 붙이지 않는다.
 3. 사용자가 원하면 Notion이나 Claude Docs로 옮긴다.
+
+## 5. 여러 번의 조사를 한 보고서로 합치기
+
+대상을 나눠 조사했거나 나중에 추가했을 때, 다시 조사하지 않고 합친 보고서를 만든다.
+
+1. `node scripts/merge_report.mjs prepare templates/<양식>.json reports/data/merge-<날짜> reports/data/a.raw.json reports/data/b.raw.json ... --topic "..." --lens "..." --date <오늘>`
+2. 에이전트 1개(general-purpose)에게 `reports/data/merge-<날짜>/synth-input.md`를 읽고 지시대로 `sections.json`을 쓰게 한다. 대상이 많으면 유형별로 묶어 쓰라고, 앱 규모(검증 정도)에 따라 근거 무게를 구분하라고 덧붙인다.
+3. `node scripts/merge_report.mjs render templates/<양식>.json reports/data/merge-<날짜> reports/<날짜>-<슬러그>-merged.md --topic "..." --lens "..." --date <오늘>`
+
+raw가 작으면(수십 KB) 워크플로 `mode: "merge", raw: [...]`로도 된다.
 
 ## 실패했을 때
 
