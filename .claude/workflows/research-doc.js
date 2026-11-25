@@ -148,15 +148,35 @@ if (A.mode === 'discover') {
       '확인 못 한 것은 confident=false로 남긴다.\n\n' + TOOLS_NOTE,
       { label: 'discover:' + (i + 1), phase: 'Discover', schema: CANDIDATES },
     )))
-  const seen = new Map()
+  // 같은 앱이 이름만 달리해 여러 번 잡히므로 스토어 ID(Play 패키지명, App Store id)를 우선 키로 쓴다.
+  const storeKeys = c => {
+    const text = c.name + ' ' + c.hint
+    const keys = []
+    for (const m of text.matchAll(/\b(?:[a-z][a-z0-9_]*\.){2,}[a-z0-9_]+\b/gi)) {
+      if (!/\.(com|net|org|co|kr|ai|io)$/i.test(m[0])) keys.push('pkg:' + m[0].toLowerCase())
+    }
+    for (const m of text.matchAll(/\bid(\d{6,})\b/gi)) keys.push('ios:' + m[1])
+    return keys
+  }
+  const nameKey = c => 'name:' + c.name.toLowerCase().replace(/\(.*?\)/g, '').split(/[-–:|]/)[0].replace(/\s+/g, '')
+  const seen = new Map()      // key -> candidate
+  const unique = []
   for (const r of found.filter(Boolean)) {
     for (const c of r.candidates) {
-      const k = c.name.toLowerCase().replace(/\s+/g, '')
-      if (!seen.has(k)) seen.set(k, c)
+      const keys = [...storeKeys(c), nameKey(c)]
+      const hit = keys.map(k => seen.get(k)).find(Boolean)
+      if (hit) {
+        if (!hit.confident && c.confident) Object.assign(hit, c)
+        keys.forEach(k => seen.set(k, hit))
+        continue
+      }
+      const copy = { ...c }
+      unique.push(copy)
+      keys.forEach(k => seen.set(k, copy))
     }
   }
   const max = A.maxCandidates || 15
-  const all = [...seen.values()]
+  const all = unique
   if (all.length > max) log('후보 ' + all.length + '개 중 ' + max + '개만 반환 (나머지는 dropped에 포함)')
   return { mode: 'discover', candidates: all.slice(0, max), dropped: all.slice(max) }
 }
