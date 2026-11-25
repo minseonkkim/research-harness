@@ -62,11 +62,12 @@ const FIELD_VALUE = {
   properties: {
     key: { type: 'string' },
     value: { type: 'string', description: '확인 못 했으면 "미확인"' },
+    short: { type: 'string', description: '비교표용 한 줄 요약 (60자 이내)' },
     sources: { type: 'array', items: { type: 'string' } },
     confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
     note: { type: 'string', description: '자사 홍보 출처, 지역별 차이 등 주의점' },
   },
-  required: ['key', 'value', 'sources', 'confidence'],
+  required: ['key', 'value', 'short', 'sources', 'confidence'],
 }
 
 const COLLECT = {
@@ -76,6 +77,7 @@ const COLLECT = {
     identity_note: { type: 'string', description: '특정 근거, 또는 못 찾았을 때 무엇이 검색됐는지' },
     fields: { type: 'array', items: FIELD_VALUE },
     extra: { type: 'string', description: '항목에 안 맞지만 관점에 중요한 발견' },
+    open_questions: { type: 'array', items: { type: 'string' }, description: '조사했지만 확인하지 못한 점 (짧게, 하나씩)' },
   },
   required: ['identified', 'identity_note', 'fields'],
 }
@@ -175,7 +177,7 @@ const results = await pipeline(
     '특정하지 못하면 identified=false로 하고 무엇이 검색됐는지 identity_note에 적은 뒤, 추측으로 항목을 채우지 않는다.\n\n' +
     '## 채울 항목 (fields 배열에 key마다 하나씩)\n' + fieldSpec + '\n\n' +
     '규칙: 값마다 실제로 읽은 출처 URL을 단다. 회사 자체 블로그·보도자료는 note에 "자사 출처"라고 표시한다. ' +
-    '확인 못 한 값은 "미확인"으로 둔다.\n\n' + TOOLS_NOTE,
+    '확인 못 한 값은 "미확인"으로 두고, 값 안에서 일부만 확인 못 한 점은 open_questions에 하나씩 적는다.\n\n' + TOOLS_NOTE,
     { label: 'collect:' + cell(t.name).slice(0, 40), phase: 'Collect', schema: COLLECT },
   ),
 
@@ -229,8 +231,9 @@ for (const r of results.filter(Boolean)) {
     }
   }
   for (const f of Object.values(fields)) {
-    if (f.value === '미확인') unverified.push(name + ' / ' + f.key + ': 미확인')
+    if (String(f.value).trim() === '미확인') unverified.push(name + ' / ' + f.key + ': 미확인')
   }
+  for (const q of r.collected.open_questions || []) unverified.push(name + ': ' + cell(q))
   rows.push({ name, identified: true, note: r.collected.identity_note, extra: r.collected.extra, fields })
 }
 log('조사 ' + rows.length + '개 대상 완료, 미확인 항목 ' + unverified.length + '개')
@@ -269,9 +272,9 @@ for (const s of T.sections || []) {
     out.push('|---|' + keys.map(() => '---').join('|') + '|')
     for (const r of rows) {
       if (!r.identified) { out.push('| ' + cell(r.name) + ' | ' + keys.map(() => '특정 실패').join(' | ') + ' |'); continue }
-      out.push('| ' + cell(r.name) + ' | ' + keys.map(k => cell(r.fields[k] && r.fields[k].value) + mark(r.fields[k])).join(' | ') + ' |')
+      out.push('| ' + cell(r.name) + ' | ' + keys.map(k => cell(r.fields[k] && (r.fields[k].short || r.fields[k].value)) + mark(r.fields[k])).join(' | ') + ' |')
     }
-    out.push('')
+    out.push('', '_자세한 내용과 출처는 부록 참고._', '')
   } else if (s.builtin === 'unverified') {
     out.push(unverified.length ? unverified.map(u => '- ' + u).join('\n') : '- 없음', '')
   } else {
