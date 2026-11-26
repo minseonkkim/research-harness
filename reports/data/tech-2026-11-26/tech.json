@@ -16,7 +16,7 @@
           2,
           3,
           4,
-          8,
+          7,
           9,
           10
         ]
@@ -30,8 +30,8 @@
           "ExifInterface"
         ],
         "serves": [
+          1,
           3,
-          4,
           5
         ]
       },
@@ -50,21 +50,22 @@
           3,
           4,
           5,
+          7,
           11,
           12,
           14
         ]
       },
       {
-        "name": "얼굴 임베딩·아이 매칭",
-        "detail": "얼굴 crop 임베딩을 아이 앵커와 코사인 비교",
+        "name": "얼굴 임베딩·인물 클러스터",
+        "detail": "얼굴 crop 임베딩을 묶고, 선택 인물 앵커와 코사인 비교",
         "tech": [
           "LiteRT MobileFaceNet",
           "코사인 유사도"
         ],
         "serves": [
-          1,
-          4,
+          3,
+          7,
           12,
           14
         ]
@@ -79,8 +80,8 @@
         ],
         "serves": [
           2,
+          3,
           4,
-          10,
           11
         ]
       },
@@ -93,9 +94,9 @@
           "SelectionParams"
         ],
         "serves": [
-          4,
+          3,
           5,
-          9,
+          10,
           14
         ]
       },
@@ -110,9 +111,9 @@
         "serves": [
           5,
           6,
-          7,
           8,
           9,
+          10,
           11,
           13
         ]
@@ -128,65 +129,71 @@
   "features": [
     {
       "rank": 1,
-      "name": "아이 얼굴로 후보 자동 수집",
+      "name": "기간 지정 + 노이즈 사진 자동 제외",
       "level": "일부 확인",
       "confirmed": [
         {
-          "app": "Chatbooks",
-          "app_ref": "Chatbooks (Smart Select)",
-          "what": "기기에서 얼굴 인식, 아이 얼굴 프로필 미보관 (모델 비공개)",
-          "source": "https://help.chatbooks.com/en/articles/17710109-how-does-chatbooks-find-photos-of-my-child-for-the-kid-yearbook"
-        },
-        {
-          "app": "짜잔",
-          "app_ref": "짜잔 ZzaZan",
-          "what": "얼굴 특징값·좌표는 기기에만, 서버 미전송 (모델 비공개)",
-          "source": "https://zzazan.ai/privacy"
-        },
-        {
-          "app": "키즈로그",
-          "app_ref": "키즈로그 - 사진분류, 알림장, 보육일지",
-          "what": "자체 서버 InsightFace, bbox+512차원 임베딩 저장",
-          "source": "https://kidslog-web.vercel.app/privacy"
-        },
-        {
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
-          "what": "검출→수치 얼굴 모델→유사도 그룹, 계정 단위 저장",
-          "source": "https://support.google.com/photos/answer/6128838?hl=en"
+          "what": "출처 앱 기준 Hide clutter 적용 (분류 모델 비공개)",
+          "source": "https://support.google.com/photos/answer/14169846"
+        },
+        {
+          "app": "사진정리 한방",
+          "app_ref": "사진정리 한방 - 중복 사진·동영상 한번에 삭제",
+          "what": "저장 경로·초점 흐림·글자량 판정, 기기 내 증분 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=kr.photo.hanbang&hl=ko&gl=KR"
+        },
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "스크린샷 숨기기·고해상도만 필터 (자사 설명)",
+          "source": "https://chatbooks.com/products/photo-books"
+        },
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "업로드 후 AI가 스크린샷·중복 제거 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6758901120"
+        },
+        {
+          "app": "PastBook",
+          "app_ref": "PastBook: 1-Click Photo Book",
+          "what": "날짜 범위·위치·앨범으로 소스 지정 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.pastbook.app&hl=ko&gl=KR"
         }
       ],
       "stack": [
-        "ML Kit Face Detection",
-        "MediaPipe Face Detector",
-        "LiteRT MobileFaceNet",
-        "WorkManager",
-        "Room",
-        "Paging 3"
+        "MediaStore",
+        "ExifInterface",
+        "ML Kit Image Labeling",
+        "ML Kit Text Recognition v2",
+        "Laplacian 분산",
+        "Room"
       ],
       "steps": [
-        "MediaStore로 연도·생일 기준 기간 사진 색인",
-        "얼굴 검출→5점 정렬→임베딩, Room에 증분 저장",
-        "얼굴 클러스터(HAC) 그리드에서 아이 탭 지정",
-        "앵커와 코사인: 상한 이상 포함, 하한 미만 제외",
-        "중간 구간은 '확인할 사진' 큐, 답으로 앵커 갱신"
+        "연도·맞춤 기간·앨범으로 MediaStore 후보 색인",
+        "1차 규칙: 경로·OWNER_PACKAGE·MIME·EXIF 판정",
+        "2차(WorkManager): 흐림, 라벨, OCR 글자량",
+        "얼굴·즐겨찾기 사진은 '의심'으로만 강등, 사유 저장",
+        "숨김 칩+사유별 복원 시트, 출처 앱별 설정"
       ],
-      "where": "온디바이스 (얼굴 데이터 서버 미전송)",
+      "where": "온디바이스 (규칙+경량 모델)",
       "data": [
-        "face(photo_id, bbox, embedding[128], quality)",
-        "child_anchor(child_id, month, embedding)",
-        "face_match(photo_id, child_id, score, status)"
+        "book_scope(book_id, start, end, album_ids)",
+        "exclusion(photo_id, reason, score, override)",
+        "photo_meta(rel_path, owner_pkg, mime, is_fav)"
       ],
       "watch": [
-        "InsightFace 사전학습 가중치는 비상업 연구 전용",
-        "영유아는 나이 차로 점수 하락→월별 앵커 (추론)",
-        "ML Kit는 검출만, 인식용 임베딩 모델 별도"
+        "OWNER_PACKAGE_NAME은 NULL 가능, <queries> 필요",
+        "보케·저텍스처 장면 흐림 오탐→삭제 대신 숨김",
+        "언번들 ML Kit는 Play 서비스(GMS) 필요"
       ],
       "apk_checks": [
-        "mlkit.vision.face / mediapipe facedetector",
-        "assets mobilefacenet*.tflite, w600k*.onnx",
-        "libtensorflowlite_jni.so, libonnxruntime.so",
-        "짜잔: *.supabase.co, 얼굴 업로드 API 없음"
+        "mlkit.vision.text(.korean), vision.label",
+        "'Screenshots'·'owner_package_name' 문자열",
+        "libopencv_java4.so",
+        "<queries> 선언, DEPENDENCIES=ocr"
       ]
     },
     {
@@ -260,69 +267,7 @@
     },
     {
       "rank": 3,
-      "name": "책에 안 넣을 사진 자동 제외",
-      "level": "일부 확인",
-      "confirmed": [
-        {
-          "app": "Google 포토",
-          "app_ref": "Google 포토 (Google Photos)",
-          "what": "출처 앱 기준 Hide clutter 적용 (분류 모델 비공개)",
-          "source": "https://support.google.com/photos/answer/14169846"
-        },
-        {
-          "app": "사진정리 한방",
-          "app_ref": "사진정리 한방 - 중복 사진·동영상 한번에 삭제",
-          "what": "저장 경로·초점 흐림·글자량 판정, 기기 내 증분 (자사 설명)",
-          "source": "https://play.google.com/store/apps/details?id=kr.photo.hanbang&hl=ko&gl=KR"
-        },
-        {
-          "app": "Chatbooks",
-          "app_ref": "Chatbooks (Smart Select)",
-          "what": "스크린샷 숨기기·고해상도만 필터 (자사 설명)",
-          "source": "https://chatbooks.com/products/photo-books"
-        },
-        {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "업로드 후 AI가 스크린샷·중복 제거 (자사 설명)",
-          "source": "https://apps.apple.com/kr/app/id6758901120"
-        }
-      ],
-      "stack": [
-        "MediaStore",
-        "ExifInterface",
-        "ML Kit Image Labeling",
-        "ML Kit Text Recognition v2",
-        "Laplacian 분산",
-        "Room"
-      ],
-      "steps": [
-        "1차 규칙: 경로·OWNER_PACKAGE·MIME·EXIF 판정",
-        "2차(WorkManager): 흐림, 라벨, OCR 글자량",
-        "얼굴·즐겨찾기 사진은 '의심'으로만 강등",
-        "제외 사유·점수 저장, 버전 바뀌면 재계산",
-        "숨김 칩+사유별 복원 시트, 출처 앱별 설정"
-      ],
-      "where": "온디바이스 (규칙+경량 모델)",
-      "data": [
-        "exclusion(photo_id, reason, score, override)",
-        "photo_meta(rel_path, owner_pkg, mime, is_fav)"
-      ],
-      "watch": [
-        "OWNER_PACKAGE_NAME은 NULL 가능, <queries> 필요",
-        "보케·저텍스처 장면 흐림 오탐→삭제 대신 숨김",
-        "언번들 ML Kit는 Play 서비스(GMS) 필요"
-      ],
-      "apk_checks": [
-        "mlkit.vision.text(.korean), vision.label",
-        "'Screenshots'·'owner_package_name' 문자열",
-        "libopencv_java4.so",
-        "<queries> 선언, DEPENDENCIES=ocr"
-      ]
-    },
-    {
-      "rank": 4,
-      "name": "점수 + 월별 분산 자동 추천",
+      "name": "점수 + 월·이벤트·인물 분산 추천",
       "level": "확인됨",
       "confirmed": [
         {
@@ -348,6 +293,12 @@
           "app_ref": "LifeCache: Automated Yearbooks",
           "what": "Gemini·Claude API로 사진 점수·캡션·레이아웃",
           "source": "https://lifecache.ai/privacy"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "연말 Recap이 하이라이트·주요 인물 선정, 2025판 Gemini(미국)",
+          "source": "https://blog.google/products/photos/google-photos-2025-recap/"
         }
       ],
       "stack": [
@@ -359,16 +310,16 @@
         "Kotlin MMR"
       ],
       "steps": [
-        "사진별 품질·얼굴·즐겨찾기 특징 캐시",
+        "사진별 품질·얼굴·인물·즐겨찾기 특징 캐시",
         "장면 묶음 후 장면당 대표 1장만 후보",
         "후보 부족 시 필터 단계 완화 (みてね 방식)",
-        "월별 쿼터 배정, MMR 또는 가중 랜덤 세트 K개",
-        "세트 점수(총점+날짜 분산) 최고 세트 채택"
+        "월·이벤트 쿼터 배정, MMR로 인물·장면 중복 억제",
+        "세트 점수(총점+날짜·인물 분산) 최고 세트 채택 (추론)"
       ],
       "where": "온디바이스 (선정은 Kotlin 순수 함수)",
       "data": [
-        "photo_score(photo_id, quality, faces, scene)",
-        "month_quota(year_month, target_n)"
+        "photo_score(photo_id, quality, person_ids, scene)",
+        "quota(bucket ym|event, target_n)"
       ],
       "watch": [
         "200ms/장 모델이면 1만 장 30분+ (추론)",
@@ -380,6 +331,80 @@
         "libtensorflowlite_jni.so",
         "'photobook'·'suggest' API 경로",
         "Room score·quality 컬럼"
+      ]
+    },
+    {
+      "rank": 4,
+      "name": "이벤트·여행 자동 묶음 → 책 챕터",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "업로드 후 이벤트 단위로 묶음 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6758901120"
+        },
+        {
+          "app": "PastBook",
+          "app_ref": "PastBook: 1-Click Photo Book",
+          "what": "Smart-group, 주문 전까지 사진은 기기에 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.pastbook.app&hl=ko&gl=KR"
+        },
+        {
+          "app": "Mixbook",
+          "app_ref": "Mixbook (Memories)",
+          "what": "위치 데이터로 언제·어디 맥락 파악 (자사 설명)",
+          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
+        },
+        {
+          "app": "Mixbook",
+          "app_ref": "Mixbook (Memories)",
+          "what": "하루·연속일 몰아 찍으면 이벤트, 생일·기념일 반복 인식 (자사 설명)",
+          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
+        },
+        {
+          "app": "Motif",
+          "app_ref": "Motif: Print your memories",
+          "what": "여행·생일 등 순간 묶기, 여행 경로 지도 (자사 설명)",
+          "source": "https://apps.apple.com/us/app/id1466595615"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "다녀온 곳별 '올해의 여정' 영상 (릴리스 노트 1.2.6)",
+          "source": "https://apps.apple.com/kr/app/id6799102499"
+        }
+      ],
+      "stack": [
+        "MediaStore DATE_TAKEN",
+        "ExifInterface",
+        "java.time YearMonth",
+        "Geocoder",
+        "ML Kit Image Labeling",
+        "Room"
+      ],
+      "steps": [
+        "현지 시각 기준 YearMonth로 월 챕터",
+        "30분 미만 같은 이벤트, 3시간 초과 분리",
+        "중간 구간·여행은 GPS·집 거리로 판정 (추론)",
+        "생일·기념일 등 반복 날짜 규칙으로 이벤트 후보",
+        "장소명·라벨로 제목 제안, 분할·병합 보존"
+      ],
+      "where": "온디바이스 (장소명만 Geocoder)",
+      "data": [
+        "event(id, ym, start, end, type, title, edited)",
+        "event_photo(event_id, photo_id)"
+      ],
+      "watch": [
+        "GPS는 ACCESS_MEDIA_LOCATION+setRequireOriginal",
+        "Geocoder 미구현 기기 있음, 이벤트당 1회 캐시",
+        "시간대 미기록·메신저 사진 EXIF 손실"
+      ],
+      "apk_checks": [
+        "'OffsetTimeOriginal' 문자열",
+        "Geocoder.getFromLocation 호출",
+        "1800000·10800000 상수",
+        "ACCESS_MEDIA_LOCATION 권한"
       ]
     },
     {
@@ -488,6 +513,69 @@
     },
     {
       "rank": 7,
+      "name": "인물·반려동물로 좁히기(선택)",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "기기에서 얼굴 인식, 아이 얼굴 프로필 미보관 (모델 비공개)",
+          "source": "https://help.chatbooks.com/en/articles/17710109-how-does-chatbooks-find-photos-of-my-child-for-the-kid-yearbook"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "얼굴 특징값·좌표는 기기에만, 서버 미전송 (모델 비공개)",
+          "source": "https://zzazan.ai/privacy"
+        },
+        {
+          "app": "키즈로그",
+          "app_ref": "키즈로그 - 사진분류, 알림장, 보육일지",
+          "what": "자체 서버 InsightFace, bbox+512차원 임베딩 저장",
+          "source": "https://kidslog-web.vercel.app/privacy"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "사람·반려동물 검출→수치 얼굴 모델→유사도 그룹, 계정 단위 저장",
+          "source": "https://support.google.com/photos/answer/6128838?hl=en"
+        }
+      ],
+      "stack": [
+        "ML Kit Face Detection",
+        "MediaPipe Face Detector",
+        "LiteRT MobileFaceNet",
+        "ML Kit Object Detection",
+        "WorkManager",
+        "Room"
+      ],
+      "steps": [
+        "선택한 기간 사진 색인 (기본은 인물 필터 없음)",
+        "얼굴 검출→5점 정렬→임베딩, Room에 증분 저장",
+        "얼굴 클러스터(HAC) 그리드에서 인물 탭(여러 명)",
+        "앵커와 코사인: 상한 이상 포함, 하한 미만 제외",
+        "중간 구간은 '확인할 사진' 큐, 답으로 앵커 갱신"
+      ],
+      "where": "온디바이스 (얼굴 데이터 서버 미전송)",
+      "data": [
+        "face(photo_id, bbox, embedding[128], quality)",
+        "person_anchor(person_id, kind, embedding)",
+        "face_match(photo_id, person_id, score, status)"
+      ],
+      "watch": [
+        "InsightFace 사전학습 가중치는 비상업 연구 전용",
+        "ML Kit는 검출만·반려동물 미지원, 별도 모델 필요",
+        "나이 차 클수록 점수 하락→다중 앵커 (추론)"
+      ],
+      "apk_checks": [
+        "mlkit.vision.face / mediapipe facedetector",
+        "assets mobilefacenet*.tflite, w600k*.onnx",
+        "libtensorflowlite_jni.so, libonnxruntime.so",
+        "짜잔: *.supabase.co, 얼굴 업로드 API 없음"
+      ]
+    },
+    {
+      "rank": 8,
       "name": "제외함·보류함과 복구",
       "level": "공개 근거 없음",
       "confirmed": [
@@ -549,7 +637,7 @@
       ]
     },
     {
-      "rank": 8,
+      "rank": 9,
       "name": "월별 진행률과 이어하기",
       "level": "공개 근거 없음",
       "confirmed": [
@@ -611,7 +699,7 @@
       ]
     },
     {
-      "rank": 9,
+      "rank": 10,
       "name": "연중 미리 고르기",
       "level": "일부 확인",
       "confirmed": [
@@ -674,68 +762,6 @@
         "POST_NOTIFICATIONS 권한",
         "Room 'monthly'·'best' 테이블",
         "FirebaseMessagingService(us.mitene)"
-      ]
-    },
-    {
-      "rank": 10,
-      "name": "월·이벤트 챕터로 묶어 넘기기",
-      "level": "공개 근거 없음",
-      "confirmed": [
-        {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "업로드 후 이벤트 단위로 묶음 (자사 설명)",
-          "source": "https://apps.apple.com/kr/app/id6758901120"
-        },
-        {
-          "app": "PastBook",
-          "app_ref": "PastBook: 1-Click Photo Book",
-          "what": "Smart-group, 주문 전까지 사진은 기기에 (자사 설명)",
-          "source": "https://play.google.com/store/apps/details?id=com.pastbook.app&hl=ko&gl=KR"
-        },
-        {
-          "app": "Mixbook",
-          "app_ref": "Mixbook (Memories)",
-          "what": "위치 데이터로 언제·어디 맥락 파악 (자사 설명)",
-          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
-        },
-        {
-          "app": "짜잔",
-          "app_ref": "짜잔 ZzaZan",
-          "what": "생일 기준 생후 일수·백일·돌 태그 (자사 설명)",
-          "source": "https://play.google.com/store/apps/details?id=ai.zzazan.app&hl=ko&gl=KR"
-        }
-      ],
-      "stack": [
-        "MediaStore DATE_TAKEN",
-        "ExifInterface",
-        "java.time YearMonth",
-        "Geocoder",
-        "Room",
-        "Compose stickyHeader"
-      ],
-      "steps": [
-        "현지 시각 기준 YearMonth로 월 챕터",
-        "30분 미만 같은 이벤트, 3시간 초과 분리",
-        "중간 구간은 GPS 거리로 판정 (추론)",
-        "생일 마일스톤 이벤트 규칙 우선",
-        "Geocoder 장소명, 사용자 분할·병합 보존"
-      ],
-      "where": "온디바이스 (장소명만 Geocoder)",
-      "data": [
-        "event(id, ym, start, end, title, edited)",
-        "event_photo(event_id, photo_id)"
-      ],
-      "watch": [
-        "GPS는 ACCESS_MEDIA_LOCATION+setRequireOriginal",
-        "Geocoder 미구현 기기 있음, 이벤트당 1회 캐시",
-        "시간대 미기록·메신저 사진 EXIF 손실"
-      ],
-      "apk_checks": [
-        "'OffsetTimeOriginal' 문자열",
-        "Geocoder.getFromLocation 호출",
-        "1800000·10800000 상수",
-        "ACCESS_MEDIA_LOCATION 권한"
       ]
     },
     {
