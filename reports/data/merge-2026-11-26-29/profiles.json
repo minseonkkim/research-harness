@@ -686,7 +686,7 @@
     "developer": "NAVER Corp. · 한국",
     "scale": "Play 4.7 · 1,000만+ / iOS 2.3",
     "price": "무료 30GB + MYBOX+ 월 1,650원~",
-    "ai": "분류·인물 묶기 AI 추정, 처리 위치 미확인",
+    "ai": "정리·인물·스토리 분석 모두 서버(앱 안 모델 없음)",
     "selection_features": [
       "'파일 정리하기' 탭 항목별 자동 분류",
       "중복·비슷한·흔들림·어두움·스크린샷·텍스트",
@@ -713,7 +713,7 @@
       "progress": "no",
       "swipe": "no"
     },
-    "caution": "정리 항목 구성은 개인 블로그 근거"
+    "caution": "처리 구조는 APK로 확인, 분류 기준은 비공개"
   },
   {
     "name": "Tangible: AI Photo Book Maker",

@@ -219,6 +219,11 @@
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "사진을 저장한 앱을 읽는 권한(OWNER_PACKAGE_NAME) + 기기 안 대분류 분류기"
+        },
+        {
+          "app": "MYBOX",
+          "app_ref": "네이버 MYBOX",
+          "what": "정리 대상(중복·유사)은 서버 API로 받음, 앱 안 모델 없음"
         }
       ]
     },
@@ -307,6 +312,11 @@
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "스택·베스트컷 모델은 APK에 없음(실행 중 내려받거나 서버, 미확인)"
+        },
+        {
+          "app": "MYBOX",
+          "app_ref": "네이버 MYBOX",
+          "what": "서버가 만든 유사 사진 묶음을 '묶음→사진' 2단 목록으로 표시"
         }
       ]
     },
@@ -648,6 +658,13 @@
         "'locked'·'user_override' 컬럼",
         "'regenerate'·'Save & Generate' 문자열",
         "Room 마이그레이션의 lock 테이블"
+      ],
+      "apk_findings": [
+        {
+          "app": "MYBOX",
+          "app_ref": "네이버 MYBOX",
+          "what": "하이라이트 '추천 안 받기' 동작과 추천 켜기/끄기 설정 저장"
+        }
       ]
     },
     {
@@ -829,6 +846,11 @@
           "app": "FamilyAlbum",
           "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
           "what": "얼굴 검출 + 나이·성별 추정 모델 내장(인물 구분 용도는 미확인)"
+        },
+        {
+          "app": "MYBOX",
+          "app_ref": "네이버 MYBOX",
+          "what": "인물에서 빼기·숨기기·잘못 합친 인물 나누기·합치기 교정 동작"
         }
       ]
     },
@@ -1055,6 +1077,11 @@
           "app": "FamilyAlbum",
           "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
           "what": "갤러리 추천에 동의 화면·알림 주기·기간·배너 설정이 따로 있음"
+        },
+        {
+          "app": "MYBOX",
+          "app_ref": "네이버 MYBOX",
+          "what": "서버 추천 하이라이트 목록 + 자동 올리기 추천 알림"
         }
       ]
     },
@@ -1260,6 +1287,30 @@
         10,
         12,
         9
+      ]
+    },
+    {
+      "app": "네이버 MYBOX",
+      "app_ref": "네이버 MYBOX",
+      "package": "com.nhn.android.ndrive",
+      "version": "5.5.3",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(단일 APK, 4개 ABI 포함)",
+      "signature": "APK v2/v3 서명, NHN(경기 성남) 인증서 · SHA-256 0b8b8523…",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "앱 안에 AI 모델 파일이 없음: 사진 분석(중복·유사·인물·테마)은 업로드한 사진을 서버에서 처리하는 구조",
+        "정리 화면(cleanup): 서버 API로 중복 묶음·유사 사진 묶음과 개수를 받아 '묶음(부모) → 사진(자식)' 2단 목록으로 보여 줌",
+        "인물 앨범 교정 동작이 따로 있음: 인물에서 빼기, 인물 숨기기, 잘못 합쳐진 인물 나누기, 비슷한 인물 합치기, 대표 얼굴",
+        "스토리·하이라이트: 서버의 추천 하이라이트 목록을 받고, 추천 켜기/끄기 설정과 '추천 안 받기' 동작이 있음",
+        "테마 앨범(서버 분류)과 자동 올리기 추천 알림",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+      ],
+      "features": [
+        1,
+        2,
+        9,
+        7,
+        12
       ]
     }
   ]

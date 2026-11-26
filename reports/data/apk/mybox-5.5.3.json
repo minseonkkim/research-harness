@@ -1,0 +1,24 @@
+{
+  "app": "네이버 MYBOX",
+  "app_ref": "네이버 MYBOX",
+  "package": "com.nhn.android.ndrive",
+  "version": "5.5.3",
+  "source": "사용자 폰에서 추출한 Google Play 설치본(단일 APK, 4개 ABI 포함)",
+  "signature": "APK v2/v3 서명, NHN(경기 성남) 인증서 · SHA-256 0b8b8523…",
+  "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+  "findings": [
+    "앱 안에 AI 모델 파일이 없음: 사진 분석(중복·유사·인물·테마)은 업로드한 사진을 서버에서 처리하는 구조",
+    "정리 화면(cleanup): 서버 API로 중복 묶음·유사 사진 묶음과 개수를 받아 '묶음(부모) → 사진(자식)' 2단 목록으로 보여 줌",
+    "인물 앨범 교정 동작이 따로 있음: 인물에서 빼기, 인물 숨기기, 잘못 합쳐진 인물 나누기, 비슷한 인물 합치기, 대표 얼굴",
+    "스토리·하이라이트: 서버의 추천 하이라이트 목록을 받고, 추천 켜기/끄기 설정과 '추천 안 받기' 동작이 있음",
+    "테마 앨범(서버 분류)과 자동 올리기 추천 알림",
+    "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+  ],
+  "features": [
+    1,
+    2,
+    9,
+    7,
+    12
+  ]
+}
