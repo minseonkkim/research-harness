@@ -679,5 +679,317 @@
       "swipe": "no"
     },
     "caution": "선별 흐름 전체 미확인(검증 불가)"
+  },
+  {
+    "name": "네이버 MYBOX",
+    "one_liner": "정리 탭에서 중복·흔들림 항목별 분류",
+    "developer": "NAVER Corp. · 한국",
+    "scale": "Play 4.7 · 1,000만+ / iOS 2.3",
+    "price": "무료 30GB + MYBOX+ 월 1,650원~",
+    "ai": "분류·인물 묶기 AI 추정, 처리 위치 미확인",
+    "selection_features": [
+      "'파일 정리하기' 탭 항목별 자동 분류",
+      "중복·비슷한·흔들림·어두움·스크린샷·텍스트",
+      "인물·장소·테마·날짜 탭으로 묶기",
+      "스토리·하이라이트 영상 자동 추천",
+      "촬영 날짜·시간 직접 수정(2025.11)"
+    ],
+    "takeaways": [
+      "제외 후보를 사유(항목)별로 보여 주는 UX 참고",
+      "촬영일 없는 사진은 날짜 보정 경로 필요"
+    ],
+    "cons": [
+      "목적이 삭제(용량), 베스트컷 추천 미확인",
+      "추천 스토리의 사진 교체 흐름 미확인",
+      "선별 결과를 포토북으로 넘기는 연결 없음"
+    ],
+    "matrix": {
+      "child_filter": "partial",
+      "similar_group": "yes",
+      "best_cut": "unknown",
+      "junk_filter": "yes",
+      "auto_suggest": "partial",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "정리 항목 구성은 개인 블로그 근거"
+  },
+  {
+    "name": "Tangible: AI Photo Book Maker",
+    "one_liner": "날짜·즐겨찾기로 연간 약 120장 사전 선별",
+    "developer": "개인 개발자 · 스페인",
+    "scale": "Play 100+ · iOS 평가 1건",
+    "price": "앱 무료 · 인쇄 $14.99~",
+    "ai": "사전 선별 온디바이스 규칙, 장면 분할·크롭은 서버",
+    "selection_features": [
+      "연 약 120장, 월별 세제곱근 배분·월 최소 1장",
+      "8초 이내 연사는 1장, 즐겨찾기 우선",
+      "여행 100km·12시간, 장면 500m·45분~5km·4시간",
+      "All/Selection 탭, 선택 장수 상시 표시",
+      "넘치면 페이지 추가, 뺀 사진은 재생성에도 제외"
+    ],
+    "takeaways": [
+      "세제곱근 월 배분으로 몰린 달의 독점 방지",
+      "사용자가 뺀 사진은 다시 짜도 돌아오지 않게",
+      "연말 카드는 '12~11월'·'1월에 만들기' 두 마감"
+    ],
+    "cons": [
+      "사전 선별은 선명도·얼굴을 보지 않음",
+      "중복 제거는 완전히 같은 파일만",
+      "인물 인식 없음"
+    ],
+    "matrix": {
+      "child_filter": "no",
+      "similar_group": "partial",
+      "best_cut": "no",
+      "junk_filter": "partial",
+      "auto_suggest": "yes",
+      "review_ui": "yes",
+      "progress": "partial",
+      "swipe": "no"
+    },
+    "caution": "규칙은 자사 블로그·릴리스 노트 근거, 스토어 문구와 불일치"
+  },
+  {
+    "name": "Aura Frames",
+    "one_liner": "선택 화면 안에서 추천 강조(반자동)",
+    "developer": "Aura Home, Inc. · 미국",
+    "scale": "Play 4.2 · 100만+ 다운로드",
+    "price": "앱 무료 · 액자 $149~",
+    "ai": "얼굴 인식·품질 모델 온디바이스(자사 주장)",
+    "selection_features": [
+      "Highlights: 기존 선택·인물 학습해 베스트 표시",
+      "연사·유사 묶음에서 품질 모델로 1장",
+      "People Search: 상단 얼굴 행으로 인물 필터",
+      "Smart Suggestions: 생일·명절 시기 제안",
+      "Auto-Add: 중복·흐림 사진 자동 제외"
+    ],
+    "takeaways": [
+      "자동 선택 대신 피커 안 강조, 사용자가 탭해 추가",
+      "자동 제외는 사유와 되살리기 경로를 보여 줄 것"
+    ],
+    "cons": [
+      "Auto-Add 제외 사진이 안 보여 '누락' 혼란",
+      "전체 선택 기능 없음",
+      "다른 앱 AI 셀카가 인물 필터에 섞임"
+    ],
+    "matrix": {
+      "child_filter": "yes",
+      "similar_group": "yes",
+      "best_cut": "yes",
+      "junk_filter": "partial",
+      "auto_suggest": "partial",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "Android Highlights 출시·Auto-Add 필터는 검색 스니펫 근거"
+  },
+  {
+    "name": "Journi Print - 포토북",
+    "one_liner": "고른 사진으로 초안 먼저, 그 위에서 교체",
+    "developer": "Journi GmbH · 오스트리아",
+    "scale": "Play 4.2 · 100만+ 다운로드",
+    "price": "앱 무료 · 하드커버 $19.99~",
+    "ai": "자동 배치·시간·위치 묶음, 처리 위치 미확인",
+    "selection_features": [
+      "시작 시 '추천 앨범' 또는 직접 선택",
+      "촬영 시각·위치로 타임라인·지도 묶음",
+      "이어북은 월별 챕터 자동 구성",
+      "버튼 하나로 초안, 탭해 교체·섞기",
+      "한 번에 최대 1,200장 시간순 배치"
+    ],
+    "takeaways": [
+      "'초안 먼저 → 교체' 흐름으로 빠른 시작",
+      "선별 없이 배치만 자동화하면 반복·누락 위험"
+    ],
+    "cons": [
+      "베스트컷·중복·흐림 제외 근거 없음",
+      "자동 배치에서 같은 사진 반복",
+      "실제와 다른 촬영 날짜 표기"
+    ],
+    "matrix": {
+      "child_filter": "no",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "partial",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "'추천 앨범' 기준 미확인, 리뷰는 제3자 집계"
+  },
+  {
+    "name": "Polarsteps - Travel Tracker",
+    "one_liner": "여행 step 단위 묶음, 책에서 토글로 빼기",
+    "developer": "Polarsteps B.V. · 네덜란드",
+    "scale": "Play 4.7 · 1,000만+ 다운로드",
+    "price": "앱 무료 + Plus · Travel Book 유료",
+    "ai": "사진 선별 AI 미확인(AI는 일정 생성만)",
+    "selection_features": [
+      "위치·시간 기반 step으로 사진 묶음",
+      "사진 GPS로 step·사진 제안, 확인 후 추가",
+      "책에서 step 토글로 통째 제외",
+      "'Include in book' 해제·'Excluded photos' 줄",
+      "Trip Reel: 사진·영상 균형·방향 자동 선택"
+    ],
+    "takeaways": [
+      "빼도 '제외' 줄에 남겨 두는 비파괴 흐름",
+      "고칠 때마다 재생성하면 대기 불만"
+    ],
+    "cons": [
+      "앨범 단계 선별은 수동, Suggestions 부정확",
+      "변경은 'Save & Generate' 후에만 반영",
+      "400쪽 상한 넘으면 직접 빼야 함"
+    ],
+    "matrix": {
+      "child_filter": "no",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "partial",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "Suggestions·Trip Reel 선택 기준 비공개"
+  },
+  {
+    "name": "GoPro Quik",
+    "one_liner": "고른 미디어에서 하이라이트 구간 자동 추출",
+    "developer": "GoPro, Inc. · 미국",
+    "scale": "Play 4.7 · 5,000만+ 다운로드",
+    "price": "무료 + Premium 연 $59.99~",
+    "ai": "하이라이트·비트 분석, 자동 생성은 클라우드",
+    "selection_features": [
+      "사용자가 고른 클립 안에서 하이라이트 구간",
+      "충전 시 자동 업로드→하이라이트 영상 푸시",
+      "Mural: 직접 고른 베스트를 모으는 피드",
+      "드래그 순서 변경, Trim으로 구간 지정"
+    ],
+    "takeaways": [
+      "이벤트 트리거로 자동 생성 후 푸시하는 패턴",
+      "자동 크롭은 얼굴 잘림 확인이 필요"
+    ],
+    "cons": [
+      "앨범 전체 베스트컷·중복 제외 없음",
+      "자동 크롭이 사진을 잘못 자름",
+      "Mural 등록은 매번 직접 골라야 함"
+    ],
+    "matrix": {
+      "child_filter": "no",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "partial",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "선별 기준은 리뷰 근거, 공식 문서 없음"
+  },
+  {
+    "name": "PicDock - 사진 슬라이드쇼 · 디지털 액자",
+    "one_liner": "얼굴·반려동물로 거르는 노출 필터",
+    "developer": "DD_studio(DevDad) · 한국",
+    "scale": "Play 4.8(리뷰 219) · 1만+",
+    "price": "무료 + Premium 평생 $19.99",
+    "ai": "얼굴 검출·반려동물·인물 그룹 온디바이스",
+    "selection_features": [
+      "소스 범위 지정(앨범·즐겨찾기·클라우드)",
+      "얼굴 있는 사진만 / 반려동물 사진만 필터",
+      "인물 그룹은 명시 동의 후 시작(기본 꺼짐)",
+      "즐겨찾기·숨김을 한곳에서 관리",
+      "스마트 포커스: 얼굴 기준 자동 크롭"
+    ],
+    "takeaways": [
+      "인물 기능은 별도 동의·기기 저장·일괄 삭제",
+      "세로 2장 묶기 등 비율 기반 배치 참고"
+    ],
+    "cons": [
+      "흐림·중복 제외, 베스트컷 없음",
+      "기간·이벤트 묶기 없음",
+      "반려동물 개체 구분 불가"
+    ],
+    "matrix": {
+      "child_filter": "yes",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "no",
+      "review_ui": "no",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "온디바이스 처리는 자사 설명 근거"
+  },
+  {
+    "name": "Magisto 동영상 편집기 및 슬라이드쇼 메이커",
+    "one_liner": "고른 소재로 AI 자동 편집, Hide로 빼기",
+    "developer": "Vimeo.com, Inc. · 미국",
+    "scale": "Play 4.6 · 5,000만+ 다운로드",
+    "price": "Basic 무료 + Premium 월 $6.99~",
+    "ai": "서버 AI가 시각·오디오 분석해 구간·순서 결정",
+    "selection_features": [
+      "후보 자동 제안 없음, 사용자가 소재 선택",
+      "AI가 '가장 흥미로운 부분' 구간 선정",
+      "정렬: Auto·고른 순서·촬영순·수동",
+      "드래프트에서 'Hide'로 지우지 않고 빼기"
+    ],
+    "takeaways": [
+      "삭제 대신 결과물에서만 빼는 Hide",
+      "AI 순서는 사용자가 쉽게 덮어쓰게"
+    ],
+    "cons": [
+      "AI 자동 순서가 제멋대로라는 불만",
+      "사진 베스트컷·중복 제외 없음"
+    ],
+    "matrix": {
+      "child_filter": "no",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "no",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "도움말은 2022~2024 갱신본, 리뷰가 오래됨"
+  },
+  {
+    "name": "키즈노트 (키즈노트북)",
+    "one_liner": "기간 사진 전부 넣고 사용자가 빼는 방식",
+    "developer": "(주)키즈노트 · 한국",
+    "scale": "Play 4.8 · 500만+ 다운로드",
+    "price": "책 40쪽 32,000원 + 쪽당 360원",
+    "ai": "사진 선별 AI 미확인",
+    "selection_features": [
+      "기간 선택 → 사진·글 전부 자동 포함",
+      "직접 편집에서 사진 하나씩 빼기",
+      "구성: 사진만 / +댓글 / +동영상 QR",
+      "기간을 나눠 여러 권 제작"
+    ],
+    "takeaways": [
+      "전부 넣기는 유사·친구 사진 수동 정리 부담",
+      "대표컷·레이아웃을 못 고르면 불만이 가장 큼"
+    ],
+    "cons": [
+      "중복·유사 자동 제거 없음",
+      "대표컷·레이아웃 선택 불가",
+      "아이 사진만 거르는 필터 미확인"
+    ],
+    "matrix": {
+      "child_filter": "unknown",
+      "similar_group": "no",
+      "best_cut": "no",
+      "junk_filter": "no",
+      "auto_suggest": "no",
+      "review_ui": "partial",
+      "progress": "no",
+      "swipe": "no"
+    },
+    "caution": "편집 흐름은 블로그 후기 근거, 공식 도움말 미확인"
   }
 ]
