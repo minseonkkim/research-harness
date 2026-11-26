@@ -13,6 +13,9 @@ templates/
   feature-benchmark.json           # 기능 벤치마크 양식
 scripts/
   fetch.sh, html2text.py           # 페이지 본문 추출 (WebFetch 대체 경로)
+  merge_report.mjs                 # 여러 회차 조사 데이터를 한 보고서로 합치기
+  render_html.py                   # 통합 보고서를 읽기 쉬운 HTML로 렌더링
+  raw_from_journal.py              # 워크플로 실행 기록에서 조사 데이터 복원
 reports/                           # 생성된 보고서
 ```
 

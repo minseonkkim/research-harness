@@ -64,6 +64,19 @@ Workflow({
 
 raw가 작으면(수십 KB) 워크플로 `mode: "merge", raw: [...]`로도 된다.
 
+### 읽기 쉬운 HTML로 만들기
+
+사용자가 HTML이나 읽기 쉬운 문서를 원하면 같은 merge 폴더로 렌더링한다(`pip install markdown` 필요).
+
+```
+python3 scripts/render_html.py templates/<양식>.json reports/data/merge-<날짜> reports/<날짜>-<슬러그>-merged.html \
+  --title "..." --lens "..." --date <오늘> --groups reports/data/merge-<날짜>/groups.json
+```
+
+- `groups.json`(선택): `{"order": [유형...], "groups": {대상이름: 유형}, "badges": {대상이름: "iOS 전용" 등}}`. 카드와 비교표를 유형별로 묶는다.
+- 구성: 요약 → 제안 흐름(implications) → 유형별 앱 카드 → 패턴 → 유형 필터 비교표 → 펼치는 앱별 상세(출처 링크) → 미확인 목록. 다크 모드와 모바일을 지원한다.
+- 렌더링 후 Playwright로 데스크톱·모바일 스크린샷을 찍어 깨짐과 가로 스크롤이 없는지 확인한다.
+
 ## 실패했을 때
 
 - 결과가 비었거나 이상하면 워크플로의 `journal.jsonl`부터 읽는다.
