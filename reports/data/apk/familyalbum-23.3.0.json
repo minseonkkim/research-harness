@@ -1,0 +1,24 @@
+{
+  "app": "FamilyAlbum",
+  "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+  "package": "us.mitene",
+  "version": "23.3.0",
+  "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + ko·ja + xxhdpi)",
+  "signature": "APK v2/v3 서명, mixi Inc.(일본 도쿄) 인증서 · SHA-256 df45debd…",
+  "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+  "findings": [
+    "기기 안 TFLite 모델 3개 내장: 얼굴 검출(942KB, MIXI 기고의 RetinaFace 크기와 일치), 나이·성별 추정, 얼굴 방향(head pose)",
+    "기고에 적힌 선별 점수 요소(얼굴 검출·나이 추정·얼굴 방향)와 같은 구성이라, 이 신호를 기기에서 계산하는 것으로 보임",
+    "'갤러리 추천 사진(Recommended Local Media)' 기능: 동의 화면 → 기기 안 얼굴 검출 → 추천 미리보기 → 올리기, 알림 주기·기간·배너 설정",
+    "서버 추천 목록: 포토북·인화·달력 추천 콘텐츠 유형이 따로 있음(선정은 서버 배치, 기고와 일치)",
+    "인화용 추천 크롭 API, 추천 사진으로 인화 페이지를 더하는 기능",
+    "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+  ],
+  "features": [
+    3,
+    4,
+    10,
+    12,
+    9
+  ]
+}
