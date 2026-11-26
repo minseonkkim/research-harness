@@ -174,7 +174,7 @@
     "developer": "Google · 미국",
     "scale": "Play 4.2 · 100억+ 다운로드",
     "price": "무료 15GB + Google One 유료",
-    "ai": "유사·얼굴 분석 클라우드 추정(Gemini)",
+    "ai": "얼굴 묶기 기기 안(FaceNet·DP-vMF)+서버 병행",
     "selection_features": [
       "유사 사진 스택 + AI 베스트 1장",
       "'베스트만 / 비슷한 사진 포함' 선택",

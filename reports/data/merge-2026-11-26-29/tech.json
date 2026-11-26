@@ -214,6 +214,11 @@
           "app": "쑥쑥찰칵",
           "app_ref": "쑥쑥찰칵 (Babyfolio)",
           "what": "ML Kit OCR 모델 내장(서류·글자 사진 판정에 쓸 수 있는 구성, 용도는 미확인)"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "사진을 저장한 앱을 읽는 권한(OWNER_PACKAGE_NAME) + 기기 안 대분류 분류기"
         }
       ]
     },
@@ -296,6 +301,13 @@
         "mobilenet_v3*.tflite, nima*.tflite",
         "'dhash'·'laplacian'·'topPick' 문자열",
         "libmediapipe_tasks_vision_jni.so"
+      ],
+      "apk_findings": [
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "스택·베스트컷 모델은 APK에 없음(실행 중 내려받거나 서버, 미확인)"
+        }
       ]
     },
     {
@@ -550,6 +562,13 @@
         "smart_collage·page range 엔드포인트",
         "Remote Config 기능 플래그",
         "RN(libhermes.so)/Flutter 여부"
+      ],
+      "apk_findings": [
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "콜라주 배치 계산 모듈 + 사진 수별(2~6장) 그리드 템플릿 내장"
+        }
       ]
     },
     {
@@ -771,6 +790,16 @@
           "app": "쑥쑥찰칵",
           "app_ref": "쑥쑥찰칵 (Babyfolio)",
           "what": "눈 뜸·얼굴 크기 조건 판정 후 매칭, 엔진은 온디바이스(.so 내장)"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "기기 안 FaceNet 임베딩 + DP-vMF 군집으로 얼굴 묶기, 서버 요청도 병행"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "옷 임베딩으로 얼굴이 안 보이는 사진도 인물에 연결"
         }
       ]
     },
@@ -841,6 +870,11 @@
           "app": "쑥쑥찰칵",
           "app_ref": "쑥쑥찰칵 (Babyfolio)",
           "what": "MediaPipe 얼굴 검출(BlazeFace short range)로 얼굴 박스·메시·베스트 얼굴 크롭"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "기기 안 얼굴 검출·중요 영역(saliency) 모델로 크롭 영역 계산"
         }
       ]
     },
@@ -1111,6 +1145,31 @@
         9,
         10,
         1
+      ]
+    },
+    {
+      "app": "Google 포토",
+      "app_ref": "Google 포토 (Google Photos)",
+      "package": "com.google.android.apps.photos",
+      "version": "8.2.0.1026567706",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + ko·ja + xxhdpi)",
+      "signature": "APK v2/v3 서명, Google 인증서(O=Google Inc) · v3.1 키 교체 · SHA-256 3d7a1223…",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석과 네이티브 라이브러리 문자열 확인. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "얼굴 묶기 모듈 photos/vision/clusters가 기기 안에 있음: FaceNet 모바일 임베더 + DP-vMF(디리클레 과정 von Mises-Fisher) 군집화",
+        "옷(apparel) 임베딩으로 얼굴이 안 보이는 사진도 같은 인물에 연결하는 구성, 군집 속성에 '즐겨 찾는 인물' 점수 항목",
+        "서버 요청 빌더(cluster_faces_request_builder)도 있어 기기·서버 혼합 처리로 보임",
+        "기기 안 분석 모듈 ondevicemi: 얼굴 검출, 중요 영역(saliency) 추정, 통합 대분류 분류기, 인물 사진 분류, 분할",
+        "콜라주 배치 계산 네이티브 모듈 + 사진 수별 그리드 템플릿(2~6장)·포토북 상품 상수 내장",
+        "대부분의 AI 모델은 APK에 없고 실행 중 내려받음(MDD). 스택·베스트컷 모델은 APK에서 확인 불가",
+        "권한: ACCESS_MEDIA_OWNER_PACKAGE_NAME(사진을 저장한 앱 식별), READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION, MANAGE_MEDIA"
+      ],
+      "features": [
+        9,
+        10,
+        1,
+        6,
+        2
       ]
     }
   ]
