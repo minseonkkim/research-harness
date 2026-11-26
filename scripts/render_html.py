@@ -29,6 +29,7 @@ ap.add_argument("out")
 ap.add_argument("--title", default="리서치 보고서")
 ap.add_argument("--lens", default="")
 ap.add_argument("--date", default="")
+ap.add_argument("--tech", help="기능별 기술 구현 데이터(tech.json). 주면 3번 섹션을 추가한다")
 a = ap.parse_args()
 
 D = Path(a.merge_dir)
@@ -45,6 +46,7 @@ rows, unverified = data["rows"], data["unverified"]
 sections = {s["key"]: s["markdown"] for s in load("sections.json", [])}
 profiles = {p["name"]: p for p in load("profiles.json")}
 FEATURES = load("features.json", [])
+TECH = json.loads(Path(a.tech).read_text(encoding="utf-8")) if a.tech else None
 G = load("groups.json", {"order": [], "groups": {}, "badges": {}})
 LINKS = load("links.json", {})
 esc = html.escape
@@ -169,7 +171,7 @@ for f in FEATURES:
         if x["name"] in idx else f'<li>{esc(x["name"])} <span class="an">{inline(x.get("note", ""))}</span></li>'
         for x in f.get("apps", []))
     fs.append(
-        f'<article class="feat"><div class="rank">{esc(str(f["rank"]))}</div><div class="fb">'
+        f'<article class="feat" id="feat-{esc(str(f["rank"]))}"><div class="rank">{esc(str(f["rank"]))}</div><div class="fb">'
         f'<div class="fh"><h3>{esc(f["name"])}</h3><span class="tier {TIER.get(f.get("tier"), "t3")}">{esc(f.get("tier", ""))}</span></div>'
         f'<p class="what">{inline(f.get("what", ""))}</p>'
         f'<p class="why"><strong>이어북에 좋은 이유</strong> {inline(f.get("why", ""))}</p>'
@@ -177,10 +179,56 @@ for f in FEATURES:
         + (f'<h4>이 기능이 있는 앱</h4><ul class="fapps">{apps}</ul>' if apps else "")
         + f'<p class="evi">근거 · {inline(f.get("evidence", ""))}</p>'
         + (f'<p class="caution">⚠ {inline(f["watch_out"])}</p>' if f.get("watch_out") else "")
+        + (f'<p class="techlink"><a href="#tech-{esc(str(f["rank"]))}">기술 구현 보기 ↓</a></p>' if TECH else "")
         + "</div></article>")
 section("features", "2. 이어북에 쓰면 좋을 기능 (추천순)", '<div class="feats-list">' + "".join(fs) + "</div>",
         '<p class="lead">조사한 앱들의 기능을 모아, 이어북 사진 선택에 도움이 되는 정도와 근거의 강도로 순위를 매겼다. '
         '<span class="tier t1">필수</span> <span class="tier t2">추천</span> <span class="tier t3">고려</span></p>')
+
+
+# 3. 기술 구현
+if TECH:
+    LV = {"확인됨": "t1", "일부 확인": "t2", "공개 근거 없음": "t3"}
+    pl = TECH.get("pipeline", {})
+    psteps = "".join(
+        f'<li><div class="pn">{i + 1}</div><div><strong>{esc(st["name"])}</strong><p>{inline(st.get("detail", ""))}</p>'
+        + '<div class="chips2">' + "".join(f'<span class="tchip">{esc(t)}</span>' for t in st.get("tech", [])) + "</div>"
+        + ('<div class="serves">쓰는 기능 ' + " ".join(f'<a href="#tech-{n}">{n}</a>' for n in st.get("serves", [])) + "</div>" if st.get("serves") else "")
+        + "</div></li>" for i, st in enumerate(pl.get("steps", [])))
+    head = (f'<div class="pipe"><h3>{esc(pl.get("title", "공통 분석 파이프라인"))}</h3><p class="lead">{inline(pl.get("lead", ""))}</p>'
+            f'<ol class="psteps">{psteps}</ol></div>' if psteps else "")
+    if TECH.get("principles"):
+        head += '<div class="principles"><h3>전체 원칙</h3><ul>' + "".join(f"<li>{inline(x)}</li>" for x in TECH["principles"]) + "</ul></div>"
+    tcs = []
+    for t in TECH.get("features", []):
+        def app_link(c):
+            if c.get("app_ref") in idx:
+                return f'<a href="#{aid(c["app_ref"])}">{esc(c["app"])}</a>'
+            return esc(c["app"])
+
+        conf = "".join(
+            f'<li><strong>{app_link(c)}</strong> {inline(c.get("what", ""))}'
+            + (f' <a class="src" href="{esc(c["source"])}" target="_blank" rel="noopener">출처</a>' if c.get("source") else "")
+            + "</li>"
+            for c in t.get("confirmed", []))
+        tcs.append(
+            f'<article class="tech" id="tech-{esc(str(t["rank"]))}"><div class="rank">{esc(str(t["rank"]))}</div><div class="fb">'
+            f'<div class="fh"><h3>{esc(t["name"])}</h3><span class="tier {LV.get(t.get("level"), "t3")}">{esc(t.get("level", ""))}</span>'
+            f'<a class="back" href="#feat-{esc(str(t["rank"]))}">기능 설명 ↑</a></div>'
+            + '<div class="chips2">' + "".join(f'<span class="tchip">{esc(x)}</span>' for x in t.get("stack", [])) + "</div>"
+            + (f'<h4>앱에서 확인된 구현</h4><ul>{conf}</ul>' if conf else '<h4>앱에서 확인된 구현</h4><p class="muted">공개 근거 없음</p>')
+            + '<h4>구현 단계</h4><ol class="isteps">' + "".join(f"<li>{inline(x)}</li>" for x in t.get("steps", [])) + "</ol>"
+            + '<div class="tgrid">'
+            + f'<div><h4>처리 위치</h4><p>{inline(t.get("where", ""))}</p></div>'
+            + ('<div><h4>저장 데이터</h4><ul class="mono">' + "".join(f"<li>{esc(x)}</li>" for x in t.get("data", [])) + "</ul></div>" if t.get("data") else "")
+            + "</div>"
+            + ('<h4>주의할 점</h4><ul class="cons">' + "".join(f"<li>{inline(x)}</li>" for x in t.get("watch", [])) + "</ul>" if t.get("watch") else "")
+            + ('<details class="raw"><summary>APK 분석 때 확인할 단서</summary><ul class="mono">' + "".join(f"<li>{esc(x)}</li>" for x in t.get("apk_checks", [])) + "</ul></details>" if t.get("apk_checks") else "")
+            + "</div></article>")
+    section("tech", "3. 추천 기능의 기술 구현", head + '<div class="feats-list">' + "".join(tcs) + "</div>",
+            '<p class="lead">공개 자료(기술 블로그·논문·특허·도움말·개인정보처리방침·릴리스 노트)로 확인한 구현과, Android에서 만들 때의 권장 구현. '
+            '<span class="tier t1">확인됨</span> 앱이 쓴 기술이 공개 근거로 확인 · <span class="tier t2">일부 확인</span> · <span class="tier t3">공개 근거 없음</span> '
+            '앱 APK 분석은 아직 하지 않았다.</p>')
 
 navhtml = "".join(f'<a href="#{i}">{esc(t)}</a>' for i, t in nav)
 meta = (f"<span>기준일 {esc(a.date)}</span><span>앱 {len(rows)}개</span>"
@@ -258,6 +306,21 @@ details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padd
 .feat h4{font-size:13.5px;color:var(--muted);margin:12px 0 4px}.feat ul{margin:0;padding-left:18px;font-size:14.5px}.feat li{margin:3px 0}
 .fapps .an{color:var(--muted);font-size:13.5px}.evi{font-size:13px;color:var(--muted);margin:12px 0 0}
 @media (max-width:860px){.feat{padding:14px;gap:12px}.rank{width:36px;height:36px;font-size:17px}}
+.techlink{margin:10px 0 0;font-size:13.5px}
+.pipe,.principles{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.pipe h3,.principles h3{font-size:17px;margin:0 0 4px}.principles ul{margin:6px 0 0;padding-left:18px;font-size:14.5px}
+.psteps{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.psteps li{display:flex;gap:10px;background:var(--bg);border-radius:12px;padding:12px}.psteps p{margin:2px 0 6px;font-size:13.5px;color:var(--muted)}
+.pn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
+.chips2{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}.tchip{font-size:12px;background:var(--soft);border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.serves{font-size:12px;color:var(--muted);margin-top:6px}.serves a{display:inline-block;min-width:20px;text-align:center;background:var(--asoft);border-radius:5px;margin-left:2px}
+.tech{display:flex;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.tech:target,.feat:target{border-color:var(--accent);box-shadow:0 0 0 3px var(--asoft)}
+.tech h4{font-size:13.5px;color:var(--muted);margin:14px 0 4px}.tech ul,.tech ol{margin:0;padding-left:20px;font-size:14.5px}.tech li{margin:3px 0}
+.back{margin-left:auto;font-size:13px}.tgrid{display:grid;grid-template-columns:1fr 1.4fr;gap:4px 18px}.tgrid p{margin:0;font-size:14.5px}
+.mono li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.src{font-size:12px;background:var(--soft);border-radius:5px;padding:0 6px;margin-left:4px}
+@media (max-width:860px){.tech{padding:14px;gap:12px}.tgrid{grid-template-columns:1fr}.back{margin-left:0}}
 .muted{color:var(--muted);font-size:13px}
 .theme{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
 footer{color:var(--muted);font-size:13px;text-align:center}
