@@ -1,0 +1,22 @@
+{
+  "id": "tech-implementation",
+  "title": "기능 기술 구현 조사",
+  "description": "제품 기능 하나를 대상으로, 그 기능이 있는 앱들이 기술적으로 어떻게 구현했는지 공개 근거를 모으고, 직접 만들 때 쓸 기술 선택지를 정리한다. 대상(target) = 기능.",
+  "fields": [
+    { "key": "identity", "label": "기능", "desc": "기능 이름과 한 줄 정의, 이 기능이 있는 앱 목록(힌트로 준 앱 기준).", "verify": false },
+    { "key": "app_evidence", "label": "앱별 구현 근거", "desc": "앱마다 실제 구현을 보여 주는 공개 근거: 기술 블로그·컨퍼런스 발표·논문·특허·채용 공고(사용 기술 스택)·개발자 문서·앱 내 오픈소스 라이선스 목록·릴리스 노트. 앱 이름 → 무엇을 썼는지 → 출처 형식으로. 근거가 없으면 '공개 근거 없음'이라고 쓴다. 마케팅 문구는 근거로 치지 않는다.", "verify": true },
+    { "key": "techniques", "label": "알고리즘·모델", "desc": "이 기능을 구현하는 데 쓰이는(또는 쓰였다고 확인된) 알고리즘과 모델. 예: 얼굴 검출(BlazeFace 등)·얼굴 임베딩(FaceNet/ArcFace)·클러스터링(DBSCAN/HDBSCAN)·지각 해시(pHash/dHash)·이미지 임베딩(CLIP/MobileNet)·미적 품질 점수(NIMA)·눈 감음·흐림(라플라시안 분산) 등. 확인된 앱 사용 사례와 일반적인 업계 방법을 구분한다.", "verify": true },
+    { "key": "android_stack", "label": "Android 구현 수단", "desc": "Android에서 직접 만들 때 쓸 API·라이브러리·SDK. 예: MediaStore·ExifInterface, WorkManager, ML Kit(Face Detection/Image Labeling/Subject Segmentation), MediaPipe Tasks, TensorFlow Lite/LiteRT, ONNX Runtime, OpenCV, Room. 라이선스·모델 크기·지원 기기 제약도 적는다.", "verify": false },
+    { "key": "on_device", "label": "온디바이스 vs 서버", "desc": "확인된 앱별 처리 위치와 근거, 그리고 이 기능에서 각 방식의 장단점(속도, 비용, 개인정보, 정확도).", "verify": false },
+    { "key": "signals", "label": "입력 신호", "desc": "기능이 쓰는 데이터: 촬영 시각·GPS(EXIF), 얼굴 임베딩, 품질 점수, 사용자 즐겨찾기·댓글, 앨범 메타데이터 등.", "verify": false },
+    { "key": "build_outline", "label": "구현 설계 개요", "desc": "이어북 앱에서 이 기능을 만드는 단계별 개요(3~6단계): 데이터 수집 → 처리 → 저장 → UI 반영. 각 단계에 쓸 기술을 붙인다. 추론이면 '(추론)'.", "verify": false },
+    { "key": "perf", "label": "성능·운영 고려", "desc": "사진 수천~수만 장 기준 처리 시간, 배터리, 증분 처리, 모델 크기, 정확도 지표·오류율 근거.", "verify": false },
+    { "key": "apk_checks", "label": "APK에서 확인할 것", "desc": "앱 APK를 정적 분석할 때 이 기능의 구현을 확인할 단서: 포함될 라이브러리 패키지명(예: com.google.mlkit.vision.face), 모델 파일(.tflite/.onnx 이름), 매니페스트 항목(WorkManager 서비스, 권한), 네이티브 라이브러리(.so) 이름, 서버 도메인.", "verify": false }
+  ],
+  "sections": [
+    { "key": "summary", "title": "요약", "prompt": "기능별로 '확인된 구현'과 '권장 구현'을 한 줄씩 요약한다." },
+    { "key": "comparison", "title": "비교표", "builtin": "table", "fields": ["techniques", "android_stack", "on_device"] },
+    { "key": "implications", "title": "구현 권장안", "prompt": "이어북 앱에서 기능들을 어떤 기술 스택으로 만들지 권장안을 정리한다. 기능 간에 공유되는 파이프라인(예: 한 번의 갤러리 분석으로 얼굴·유사도·품질 점수를 함께 계산)을 묶어 제시한다. 근거와 추론을 구분한다." },
+    { "key": "gaps", "title": "확인하지 못한 것", "builtin": "unverified" }
+  ]
+}
