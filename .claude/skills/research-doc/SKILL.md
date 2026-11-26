@@ -66,41 +66,21 @@ raw가 작으면(수십 KB) 워크플로 `mode: "merge", raw: [...]`로도 된�
 
 ### 읽기 쉬운 HTML로 만들기
 
-사용자가 HTML이나 읽기 쉬운 문서를 원하면 같은 merge 폴더로 렌더링한다(`pip install markdown` 필요).
+사용자가 HTML이나 읽기 쉬운 문서를 원하면 같은 merge 폴더로 렌더링한다(`pip install markdown` 필요). 앱 정보는 줄글이 아니라 항목별 카드로 보여 준다.
+
+1. merge 폴더에 보조 파일을 둔다.
+   - `groups.json`: `{"order": [유형...], "groups": {대상이름: 유형}, "badges": {대상이름: "iOS 전용" 등}}`
+   - `links.json`: `{대상이름: {"play": 패키지, "ios": 앱ID, "galaxy": 패키지, "web": URL}}`. 조사 데이터의 출처 URL은 형식이 섞여 있으니 스토어 ID로 직접 정리하고, curl로 각 링크가 열리는지 확인한다.
+2. 에이전트 1개(general-purpose)에게 `rows.json`·`sections.json`만 근거로 두 파일을 쓰게 한다(웹 검색 금지).
+   - `profiles.json`: 대상마다 `{name, one_liner, developer, scale, price, ai, selection_features[], takeaways[], cons[], matrix{child_filter, similar_group, best_cut, junk_filter, auto_suggest, review_ui, progress, swipe: yes|partial|no|unknown}, caution}`. 항목은 짧게(각 40~50자 이내).
+   - `brief.json`: `{summary[], flow[{step, title, what, how[], refs[], inferred}], year_round{title, how[], refs[]}, cautions[]}`
+   - matrix 키는 사진 선택 관점용이다. 다른 관점이면 `scripts/render_html.py`의 `MCOLS`도 함께 바꾼다.
+3. 렌더링:
 
 ```
 python3 scripts/render_html.py templates/<양식>.json reports/data/merge-<날짜> reports/<날짜>-<슬러그>-merged.html \
-  --title "..." --lens "..." --date <오늘> --groups reports/data/merge-<날짜>/groups.json
+  --title "..." --lens "..." --date <오늘>
 ```
 
-- `groups.json`(선택): `{"order": [유형...], "groups": {대상이름: 유형}, "badges": {대상이름: "iOS 전용" 등}}`. 카드와 비교표를 유형별로 묶는다.
-- 구성: 요약 → 제안 흐름(implications) → 유형별 앱 카드 → 패턴 → 유형 필터 비교표 → 펼치는 앱별 상세(출처 링크) → 미확인 목록. 다크 모드와 모바일을 지원한다.
+- 구성: 핵심 요약 → 기능 비교 매트릭스(유형 필터) → 앱별 카드(설치 링크·기본 정보·사진 선택 기능·참고할 점·아쉬운 점, 원문과 출처는 펼치기) → 선택 흐름 단계 → 부록(긴 분석 원문, 미확인 목록). 다크 모드와 모바일 지원.
 - 렌더링 후 Playwright로 데스크톱·모바일 스크린샷을 찍어 깨짐과 가로 스크롤이 없는지 확인한다.
-
-## 실패했을 때
-
-- 결과가 비었거나 이상하면 워크플로의 `journal.jsonl`부터 읽는다.
-- 페이지 읽기가 전부 실패하면: `bash scripts/fetch.sh <URL>`을 직접 실행해 네트워크를 확인한다. 막혔으면 환경 네트워크 설정 문제다.
-- 일부 대상만 실패했으면 그 대상만 `targets`로 다시 돌리고 문서를 합친다.
-
-## 새 양식 만들기
-
-`templates/<id>.json`에 아래 구조로 만든다.
-
-```json
-{
-  "id": "market-scan",
-  "title": "시장 조사",
-  "fields": [
-    { "key": "필드키", "label": "표시 이름", "desc": "조사자에게 주는 설명", "verify": true }
-  ],
-  "sections": [
-    { "key": "summary", "title": "요약", "prompt": "합성 에이전트에게 주는 작성 지시" },
-    { "key": "comparison", "title": "비교표", "builtin": "table", "fields": ["필드키"] },
-    { "key": "gaps", "title": "확인하지 못한 것", "builtin": "unverified" }
-  ]
-}
-```
-
-- `verify: true`는 틀리면 결론이 흔들리는 항목(정체, 수치, 가격, 관점 핵심 기능)에만 붙인다. 많을수록 검증 비용이 는다.
-- `builtin: "table"`은 스크립트가 데이터로 바로 그리고, `prompt` 섹션은 합성 에이전트가 쓴다.

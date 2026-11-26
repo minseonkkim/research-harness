@@ -118,8 +118,8 @@ def store_buttons(name):
 MCOLS = [("child_filter", "아이 자동 필터"), ("similar_group", "유사 사진 묶기"), ("best_cut", "베스트컷 추천"),
          ("junk_filter", "불필요 사진 제외"), ("auto_suggest", "기간별 자동 제안"), ("review_ui", "자동 선택 후 검토"),
          ("progress", "월 분할·이어하기"), ("swipe", "스와이프 판정")]
-SYM = {"yes": ('<span class="m y" title="있음">●</span>'), "partial": ('<span class="m p" title="일부">◐</span>'),
-       "no": ('<span class="m n" title="없음">·</span>'), "unknown": ('<span class="m u" title="미확인">?</span>')}
+SYM = {"yes": '<span class="m y" title="있음"></span>', "partial": '<span class="m p" title="일부"></span>',
+       "no": '<span class="m n" title="없음"></span>', "unknown": '<span class="m u" title="미확인">?</span>'}
 
 parts, nav = [], []
 
@@ -146,7 +146,7 @@ for g in order:
                    + "".join(f"<td>{SYM.get(mx.get(k, 'unknown'), SYM['unknown'])}</td>" for k, _ in MCOLS) + "</tr>")
 matrix = (chips + '<div class="tw"><table class="matrix"><thead><tr><th>앱</th>'
           + "".join(f"<th>{esc(t)}</th>" for _, t in MCOLS) + "</tr></thead><tbody>" + "".join(trs) + "</tbody></table></div>"
-          + '<p class="legend"><span class="m y">●</span> 있음 <span class="m p">◐</span> 일부 <span class="m n">·</span> 없음 <span class="m u">?</span> 미확인 · 앱 이름을 누르면 상세 카드로 이동</p>')
+          + '<p class="legend"><span class="m y"></span> 있음 <span class="m p"></span> 일부 <span class="m n"></span> 없음 <span class="m u">?</span> 미확인 · 앱 이름을 누르면 상세 카드로 이동</p>')
 section("matrix", "기능 비교", matrix, '<p class="lead">사진 선택에 관련된 기능만 골라 표시했다.</p>')
 
 # 3. 앱 목록
@@ -252,7 +252,9 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:9px 12px;
 .matrix td{text-align:center;vertical-align:middle;min-width:76px}.matrix thead th{font-size:12.5px;color:var(--muted);text-align:center;background:var(--soft);line-height:1.35}
 .matrix thead th:first-child{text-align:left}.matrix th[scope=row]{white-space:nowrap;font-weight:600}
 .matrix tr.grp th{background:var(--soft);font-size:12.5px;color:var(--muted);padding:6px 12px}
-.m{font-size:17px;line-height:1}.m.y{color:var(--ev)}.m.p{color:var(--inf)}.m.n{color:var(--line);font-size:22px}.m.u{color:var(--muted);font-size:13px;font-weight:700}
+.m{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px}.m.y{background:var(--ev)}
+.m.p{border:2px solid var(--inf);background:linear-gradient(90deg,var(--inf) 50%,transparent 50%)}
+.m.n{width:6px;height:6px;background:var(--line);vertical-align:1px}.m.u{width:auto;height:auto;color:var(--muted);font-size:13px;font-weight:700}
 .legend{font-size:13px;color:var(--muted);margin:10px 2px}.legend .m{margin:0 3px 0 10px}.legend .m:first-child{margin-left:0}
 .gh{font-size:17px;margin:28px 0 12px}.count{font-size:13px;color:var(--muted);font-weight:500}
 .apps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -298,7 +300,7 @@ document.getElementById("theme").onclick=function(){var d=r.getAttribute("data-t
 var n=d?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem("rh-theme",n)}catch(e){}};
 document.querySelectorAll(".chip").forEach(function(c){c.onclick=function(){document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("on")});c.classList.add("on");
 var f=c.getAttribute("data-f");document.querySelectorAll(".matrix tbody tr").forEach(function(tr){tr.style.display=(f==="*"||tr.getAttribute("data-group")===f)?"":"none"})}});
-var links=document.querySelectorAll(".top a");var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(l){l.classList.toggle("on",l.getAttribute("href")==="#"+e.target.id)})})},{rootMargin:"-20% 0px -70% 0px"});
+var links=document.querySelectorAll(".top a");var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(l){l.classList.toggle("on",l.getAttribute("href")==="#"+e.target.id)})})},{rootMargin:"-80px 0px -75% 0px"});
 document.querySelectorAll("main>section").forEach(function(s){o.observe(s)});})();
 """
 
