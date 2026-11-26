@@ -32,7 +32,7 @@
         "note": "날짜·위치·앨범으로 범위 지정"
       }
     ],
-    "evidence": "Chatbooks·Google 포토 등 대형 앱에서 확인",
+    "evidence": "Chatbooks·Google 포토 등에서 확인",
     "watch_out": "흐림 판정 정확도는 대형 앱도 미확인(Chatbooks 마케팅 문구)"
   },
   {
@@ -68,7 +68,7 @@
         "note": "시간·각도 그룹별 베스트 1장"
       }
     ],
-    "evidence": "Google 포토 스택으로 검증, 세부 기준은 신생 앱 자사 설명",
+    "evidence": "Google 포토 스택으로 검증, 세부 기준은 일부 앱 자사 설명",
     "watch_out": "묶음 오류(관련 없는 사진 묶기) 사례 있음, 그룹 수정 필요"
   },
   {
@@ -129,10 +129,10 @@
       },
       {
         "name": "짜잔 ZzaZan",
-        "note": "여행·생일 등 상황 태그, 장소별 영상"
+        "note": "여행·생일 등 상황·장소 태그"
       }
     ],
-    "evidence": "스냅스·FamilyAlbum 등 대형 앱에서 확인, 알고리즘은 비공개",
+    "evidence": "스냅스·FamilyAlbum 등에서 확인, 묶음 알고리즘은 비공개",
     "watch_out": "위치 기반 묶음은 위치 정보 없는 사진엔 쓸 수 없음 (추론)"
   },
   {
@@ -160,27 +160,27 @@
         "note": "제안 그대로·편집·직접 선택"
       }
     ],
-    "evidence": "명시적 검토 탭은 Chatbooks(대형)뿐, 나머지는 느슨한 형태",
+    "evidence": "명시적 검토 탭은 Chatbooks뿐, 나머지는 느슨한 형태",
     "watch_out": "Chatbooks도 '한 달씩만', '1월부터 1년 스크롤' 불만 있음"
   },
   {
     "rank": 6,
     "name": "사진 장수와 페이지 수 분리",
     "tier": "필수",
-    "what": "사진을 먼저 확정한 뒤 페이지 수·가격을 고르게 함",
+    "what": "사진을 먼저 확정한 뒤 그 장수에 맞춰 페이지 수를 고르게 함",
     "why": "고른 사진이 빠지지 않아 선택 노력이 보존되고, 페이지 수는 콜라주 밀도로 흡수된다.",
     "how": [
-      "'X장으로 계속' → 페이지 수·가격 선택",
+      "'X장으로 계속' → 장수에 맞는 페이지 수 선택",
       "페이지 적으면 콜라주 늘림, 사진은 전부 포함",
       "사진 부족 시 보충, 최소 미만은 편집기로"
     ],
     "apps": [
       {
         "name": "Chatbooks (Smart Select)",
-        "note": "사진 확정 후 페이지 수·가격 선택"
+        "note": "사진 확정 후 페이지 수 선택"
       }
     ],
-    "evidence": "Chatbooks 1곳(대형, 도움말 근거)에서 확인",
+    "evidence": "Chatbooks 1곳(도움말 근거)에서 확인",
     "watch_out": "Tinybeans·스냅스는 판형 먼저 방식, 사례가 1곳뿐"
   },
   {
@@ -216,7 +216,7 @@
         "note": "인물별 분류, 단체사진 중복 소속"
       }
     ],
-    "evidence": "Google 포토·삼성 갤러리·Chatbooks 등 대형 앱에서 검증",
+    "evidence": "Google 포토·삼성 갤러리·Chatbooks 등에서 검증",
     "watch_out": "얼굴 그룹 오류는 Google도 인정·삼성 불만 다수, 해제 경로 필수"
   },
   {
@@ -252,7 +252,7 @@
         "note": "그룹별 보관/정리 + 되돌리기"
       }
     ],
-    "evidence": "Chatbooks(대형)·Slidebox(에디터스 초이스)에서 확인",
+    "evidence": "Chatbooks·Slidebox 등에서 확인",
     "watch_out": ""
   },
   {
@@ -284,7 +284,7 @@
         "note": "iOS 월별 정리와 개수 표시"
       }
     ],
-    "evidence": "Sponge(50만+)·Slidebox 등 AI 없는 정리 앱에서 검증",
+    "evidence": "Sponge·Slidebox 등 AI 없는 정리 앱에서 검증",
     "watch_out": "Slidebox 위치 초기화 불만, PhotoKip은 유입 경로 따라 진행률 깨짐"
   },
   {
@@ -305,11 +305,11 @@
       },
       {
         "name": "Chatbooks (Smart Select)",
-        "note": "구독 책 사진을 연간 책에 재사용"
+        "note": "월간 책 선택분을 연간 책에 재사용"
       },
       {
         "name": "FamilyAlbum (みてね, 패밀리 앨범)",
-        "note": "매달 포토북·인화 자동 제안"
+        "note": "매달 베스트 23장·11장 자동 제안"
       },
       {
         "name": "짜잔 ZzaZan",
@@ -320,7 +320,7 @@
         "note": "좋아요 = OS 즐겨찾기 동기화"
       }
     ],
-    "evidence": "FamilyAlbum·Chatbooks·쑥쑥찰칵 등 대·중형 앱에서 확인",
+    "evidence": "FamilyAlbum·Chatbooks·쑥쑥찰칵 등에서 확인",
     "watch_out": "매달 참여하지 않은 사용자를 위한 연말 일괄 경로도 필요"
   },
   {
@@ -348,7 +348,7 @@
         "note": "페이지 단위 사진 교체"
       }
     ],
-    "evidence": "Chatbooks·스냅스(대형)에서 확인",
+    "evidence": "Chatbooks·스냅스에서 확인",
     "watch_out": "선택기를 열 때마다 처음으로 돌아가지 않게 위치 유지 (추론)"
   },
   {
@@ -365,7 +365,7 @@
     "apps": [
       {
         "name": "쑥쑥찰칵 (Babyfolio)",
-        "note": "달력 굿즈 얼굴 기준 자동 배치"
+        "note": "얼굴 위치 기준 자동 크롭·배치"
       }
     ],
     "evidence": "쑥쑥찰칵(APK 분석) 외 공개 근거 적음",
@@ -396,7 +396,7 @@
         "note": "한 장씩 좌우 스와이프"
       }
     ],
-    "evidence": "Sponge(50만+)·Slidebox(에디터스 초이스)에서 검증",
+    "evidence": "Sponge·Slidebox에서 검증",
     "watch_out": "모두 '삭제' 목적 앱, 남길 사진 고르기로 뒤집어 적용 필요"
   }
 ]

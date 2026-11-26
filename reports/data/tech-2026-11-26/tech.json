@@ -339,7 +339,7 @@
         {
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
-          "what": "다녀온 곳별 '올해의 여정' 영상 (릴리스 노트 1.2.6)",
+          "what": "다녀온 곳별 장소 묶음('올해의 여정', 릴리스 노트 1.2.6)",
           "source": "https://apps.apple.com/kr/app/id6799102499"
         }
       ],
@@ -430,13 +430,13 @@
         {
           "app": "Chatbooks",
           "app_ref": "Chatbooks (Smart Select)",
-          "what": "Smart Collage Time/Price 모드, 미리보기·Smart만 Undo (알고리즘 비공개)",
+          "what": "Smart Collage로 사진 유지한 채 페이지 축소, 미리보기·Smart만 Undo (알고리즘 비공개)",
           "source": "https://help.chatbooks.com/en/articles/18324177-how-do-i-fit-my-classic-book-yearbook-travel-book-or-layflat-into-fewer-pages"
         },
         {
           "app": "Chatbooks",
           "app_ref": "Chatbooks (Smart Select)",
-          "what": "페이지 구간제 가격(Classic 20–60/61–120/121–366쪽)",
+          "what": "페이지 수 구간(Classic 20–60/61–120/121–366쪽) 구분",
           "source": "https://help.chatbooks.com/en/articles/15840141-how-are-classic-book-yearbook-travel-book-and-luxury-layflat-prices-determined"
         }
       ],
@@ -449,17 +449,17 @@
         "Coil"
       ],
       "steps": [
-        "서버에서 페이지 구간 가격표 받아 캐시",
+        "서버에서 페이지 구간표(최소·최대 쪽수) 받아 캐시",
         "순서 보존 분할 DP: 페이지 ≤ 구간 상한 (추론)",
-        "도달 불가 구간은 가격 칩 비활성화",
+        "장수로 도달 불가한 페이지 구간 칩 비활성화",
         "미리보기는 ViewModel 초안, Apply 시 트랜잭션",
         "Undo는 origin=SMART 페이지만 낱장 복원"
       ],
-      "where": "온디바이스 (가격표만 서버 설정)",
+      "where": "온디바이스 (페이지 구간표만 서버 설정)",
       "data": [
         "page(page_id, origin USER/SMART, batch_id)",
         "page_slot(page_id, slot_idx, photo_id)",
-        "price_tier(country, min_pg, max_pg, price)"
+        "page_tier(country, min_pg, max_pg)"
       ],
       "watch": [
         "DP O(n·P·5), 수십~수백 ms (추론)",
@@ -468,7 +468,7 @@
       ],
       "apk_checks": [
         "'Smart Collage'·'Undo all Smart Collages'",
-        "smart_collage·price_ranges 엔드포인트",
+        "smart_collage·page range 엔드포인트",
         "Remote Config 기능 플래그",
         "RN(libhermes.so)/Flutter 여부"
       ]
@@ -909,9 +909,8 @@
         "모듈 기능명: 얼굴 비교·미디어 비교·최대 유사도·눈 뜸·얼굴 조건 판정, 얼굴·사진 최대 크기 상수",
         "온디바이스 엔진 흔적: libhiai_face_compare.so, libmlface.so, libmindspore-lite.so(arm64)",
         "자체 세그멘테이션 모듈 com.jejememe.segmentation: MediaPipe Face Detector(face_detection_short_range.tflite) + 얼굴 메시·박스·베스트 얼굴 크롭",
-        "ML Kit 텍스트 인식(OCR)·바코드 모델 내장, MediaPipe Tasks Vision 전체(이미지 임베더 포함, 사용 흔적은 없음)",
-        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED(부분 접근), ACCESS_MEDIA_LOCATION(사진 위치)",
-        "기타: Lynx(ByteDance) UI 런타임, FFmpeg·VLC 미디어, 광고 SDK 다수"
+        "ML Kit 텍스트 인식(OCR) 모델 내장, MediaPipe Tasks Vision 전체(이미지 임베더 포함, 사용 흔적은 없음)",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED(부분 접근), ACCESS_MEDIA_LOCATION(사진 위치)"
       ],
       "features": [
         7,
