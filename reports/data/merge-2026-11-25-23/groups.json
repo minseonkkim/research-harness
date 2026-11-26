@@ -1,5 +1,11 @@
 {
-  "order": ["아이 성장 앨범", "범용 갤러리", "정리·선별 앱", "포토북·이어북", "기타 참고"],
+  "order": [
+    "아이 성장 앨범",
+    "범용 갤러리",
+    "정리·선별 앱",
+    "포토북·이어북",
+    "기타 참고"
+  ],
   "groups": {
     "Bebememo (베베메모)": "아이 성장 앨범",
     "쑥쑥찰칵 (Babyfolio)": "아이 성장 앨범",
@@ -19,16 +25,10 @@
     "스냅스 SNAPS": "포토북·이어북",
     "Chatbooks (Smart Select)": "포토북·이어북",
     "PastBook: 1-Click Photo Book": "포토북·이어북",
-    "LifeCache: Automated Yearbooks": "포토북·이어북",
-    "Mixbook (Memories)": "포토북·이어북",
-    "Motif: Print your memories": "포토북·이어북",
     "PhotoKip 포토킵": "기타 참고",
     "키즈로그 - 사진분류, 알림장, 보육일지": "기타 참고"
   },
   "badges": {
-    "LifeCache: Automated Yearbooks": "iOS 전용",
-    "Mixbook (Memories)": "iOS 전용",
-    "Motif: Print your memories": "iOS 전용",
     "PhotoKip 포토킵": "업무 사진",
     "키즈로그 - 사진분류, 알림장, 보육일지": "교사용"
   }

@@ -52,8 +52,7 @@
           5,
           7,
           11,
-          12,
-          14
+          12
         ]
       },
       {
@@ -66,8 +65,7 @@
         "serves": [
           3,
           7,
-          12,
-          14
+          12
         ]
       },
       {
@@ -96,8 +94,7 @@
         "serves": [
           3,
           5,
-          10,
-          14
+          10
         ]
       },
       {
@@ -149,12 +146,6 @@
           "app_ref": "Chatbooks (Smart Select)",
           "what": "스크린샷 숨기기·고해상도만 필터 (자사 설명)",
           "source": "https://chatbooks.com/products/photo-books"
-        },
-        {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "업로드 후 AI가 스크린샷·중복 제거 (자사 설명)",
-          "source": "https://apps.apple.com/kr/app/id6758901120"
         },
         {
           "app": "PastBook",
@@ -296,12 +287,6 @@
           "source": "https://speakerdeck.com/mixi_engineers/on-device-ml-cost-cut"
         },
         {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "Gemini·Claude API로 사진 점수·캡션·레이아웃",
-          "source": "https://lifecache.ai/privacy"
-        },
-        {
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "연말 Recap이 하이라이트·주요 인물 선정, 2025판 Gemini(미국)",
@@ -346,34 +331,10 @@
       "level": "공개 근거 없음",
       "confirmed": [
         {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "업로드 후 이벤트 단위로 묶음 (자사 설명)",
-          "source": "https://apps.apple.com/kr/app/id6758901120"
-        },
-        {
           "app": "PastBook",
           "app_ref": "PastBook: 1-Click Photo Book",
           "what": "Smart-group, 주문 전까지 사진은 기기에 (자사 설명)",
           "source": "https://play.google.com/store/apps/details?id=com.pastbook.app&hl=ko&gl=KR"
-        },
-        {
-          "app": "Mixbook",
-          "app_ref": "Mixbook (Memories)",
-          "what": "위치 데이터로 언제·어디 맥락 파악 (자사 설명)",
-          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
-        },
-        {
-          "app": "Mixbook",
-          "app_ref": "Mixbook (Memories)",
-          "what": "하루·연속일 몰아 찍으면 이벤트, 생일·기념일 반복 인식 (자사 설명)",
-          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
-        },
-        {
-          "app": "Motif",
-          "app_ref": "Motif: Print your memories",
-          "what": "여행·생일 등 순간 묶기, 여행 경로 지도 (자사 설명)",
-          "source": "https://apps.apple.com/us/app/id1466595615"
         },
         {
           "app": "짜잔",
@@ -430,12 +391,6 @@
           "app_ref": "Chatbooks (Smart Select)",
           "what": "Smart Select 체크 해제·'Selected' 토글, 앱 전용 (알고리즘 비공개)",
           "source": "https://help.chatbooks.com/en/articles/16531937-what-is-smart-select"
-        },
-        {
-          "app": "Mixbook",
-          "app_ref": "Mixbook (Memories)",
-          "what": "메타데이터 스캔 ML로 선택·라벨·그룹 (자사 설명)",
-          "source": "https://prnewswire.com/news-releases/mixbook-enhances-mobile-app-with-powerful-new-photo-organization-feature-301817423.html"
         }
       ],
       "stack": [
@@ -795,12 +750,6 @@
           "source": "https://help.chatbooks.com/en/articles/7885251-how-can-i-add-photos-from-a-different-month-to-my-monthbook"
         },
         {
-          "app": "Motif",
-          "app_ref": "Motif: Print your memories",
-          "what": "레이아웃 유지 Replace, 기기 내 얼굴 인식 (릴리스 노트)",
-          "source": "https://apps.apple.com/kr/app/id1466595615"
-        },
-        {
           "app": "PastBook",
           "app_ref": "PastBook: 1-Click Photo Book",
           "what": "Replace 시 Suggestions 트레이 (후보 기준 비공개)",
@@ -845,22 +794,10 @@
       "level": "공개 근거 없음",
       "confirmed": [
         {
-          "app": "Motif",
-          "app_ref": "Motif: Print your memories",
-          "what": "얼굴 감지로 배치 조정, 방향 기준 autoflow (자사 설명)",
-          "source": "https://mimeophotos.com/pages/motif-for-iphone-and-ipad"
-        },
-        {
           "app": "쑥쑥찰칵",
           "app_ref": "쑥쑥찰칵 (Babyfolio)",
           "what": "달력에 얼굴 잘 보이게 자동 배치 (자사 설명)",
           "source": "https://play.google.com/store/apps/details?id=com.jejememe.daybabyday&hl=ko&gl=KR"
-        },
-        {
-          "app": "Mixbook",
-          "app_ref": "Mixbook (Memories)",
-          "what": "Apple 온디바이스 AI로 점수화+LLM 분석 (자사 설명)",
-          "source": "https://thedeadpixelssociety.com/mixbook-launches-story-mode-turning-a-few-words-into-a-finished-photo-book/"
         }
       ],
       "stack": [
@@ -955,62 +892,6 @@
         "com.bumptech.glide / coil",
         "createTrashRequest 호출",
         "com.airbnb.lottie"
-      ]
-    },
-    {
-      "rank": 14,
-      "name": "자연어·파라미터로 재선별",
-      "level": "확인됨",
-      "confirmed": [
-        {
-          "app": "LifeCache",
-          "app_ref": "LifeCache: Automated Yearbooks",
-          "what": "Gemini·Claude API로 점수·캡션·레이아웃·책 문구 생성",
-          "source": "https://lifecache.ai/privacy"
-        },
-        {
-          "app": "Motif",
-          "app_ref": "Motif: Print your memories",
-          "what": "MCP 서버(OAuth·PKCE)로 프로젝트 편집 도구 노출",
-          "source": "https://create.mimeophotos.com/.well-known/oauth-authorization-server"
-        },
-        {
-          "app": "Motif",
-          "app_ref": "Motif: Print your memories",
-          "what": "얼굴 인식은 기기, 큐레이션은 업로드 후 서버",
-          "source": "https://apps.apple.com/kr/app/id1466595615"
-        }
-      ],
-      "stack": [
-        "Firebase AI Logic",
-        "ML Kit GenAI Prompt API",
-        "ML Kit Face Detection",
-        "MobileCLIP (선택)",
-        "Room",
-        "WorkManager"
-      ],
-      "steps": [
-        "특징값 사전 계산(얼굴·인물 ID·품질·임베딩)",
-        "SelectionParams 정의, 버전별 Room 저장",
-        "텍스트만 LLM function calling→파라미터",
-        "기기에서 재순위: 가중치·제약·쿼터·MMR",
-        "변경 diff 표시, 칩·슬라이더와 양방향 동기화"
-      ],
-      "where": "의도 파싱만 서버 LLM, 재순위는 기기",
-      "data": [
-        "selection_params(ver, target_n, weights)",
-        "photo_features(photo_id, person_ids, emb)"
-      ],
-      "watch": [
-        "Firebase AI Logic App Check 강제(2026-11-02~)",
-        "Gemini Nano는 일부 기종·베타",
-        "MobileCLIP 라이선스·용량 확인"
-      ],
-      "apk_checks": [
-        "com.google.firebase.ai",
-        "com.google.mlkit.genai.prompt",
-        "generativelanguage.googleapis.com, api.anthropic.com",
-        "*.task / *.litertlm 모델 파일"
       ]
     }
   ],
