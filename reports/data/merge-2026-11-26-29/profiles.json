@@ -5,7 +5,7 @@
     "developer": "Bebememo, Inc. · 미국(중국계 추정)",
     "scale": "Play 4.6 · 50만+ 다운로드",
     "price": "무료 + 구독 연 62,500원~",
-    "ai": "아기 사진 감지(처리 위치 미확인)",
+    "ai": "얼굴 검출·비교 기기 안(SCRFD·MobileFaceNet)",
     "selection_features": [
       "갤러리에서 아기 사진 자동 감지",
       "감지 후보 확인 후 일괄 담기",

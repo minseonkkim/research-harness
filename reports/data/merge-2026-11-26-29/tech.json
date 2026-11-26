@@ -800,6 +800,11 @@
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "옷 임베딩으로 얼굴이 안 보이는 사진도 인물에 연결"
+        },
+        {
+          "app": "Bebememo",
+          "app_ref": "Bebememo (베베메모)",
+          "what": "기기 안 SCRFD 검출 + MobileFaceNet 특징값으로 등록 얼굴과 비교, 결과 DB 저장"
         }
       ]
     },
@@ -875,6 +880,11 @@
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "기기 안 얼굴 검출·중요 영역(saliency) 모델로 크롭 영역 계산"
+        },
+        {
+          "app": "Bebememo",
+          "app_ref": "Bebememo (베베메모)",
+          "what": "'베스트 얼굴' 데이터와 5점 얼굴 랜드마크를 뮤직비디오 등에 사용"
         }
       ]
     },
@@ -1170,6 +1180,26 @@
         1,
         6,
         2
+      ]
+    },
+    {
+      "app": "Bebememo",
+      "app_ref": "Bebememo (베베메모)",
+      "package": "com.liveyap.timehut.bbmemo",
+      "version": "5.7.8",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + ko·ja + xxhdpi)",
+      "signature": "APK v2/v3 서명, TimeHut Team(중국 우한) 인증서 · SHA-256 7e5d533d… (TimeHut과 같은 계열 확인)",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석과 네이티브 라이브러리 문자열 확인. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "기기 안 AI 모듈 com.timehut.ai: 갤러리 스캔(scan) → 얼굴 검출 → 얼굴 특징값 → 비교 결과를 앱 내부 DB(Room, AIFaceEntity)에 저장",
+        "내장 모델(NCNN 엔진): SCRFD-500M(얼굴 검출+눈·코·입 5점), MobileFaceNet(얼굴 특징값), MobileNet v3(분류, 용도 미확인), face 모델(얼굴 유형 판정으로 추정)",
+        "네이티브 함수: 전체 얼굴 검출, 특징값 추출, 두 얼굴 유사도 비교(calculSimilar), 얼굴 유형(faceType), '베스트 얼굴(BestFace)' 데이터",
+        "이 모듈을 쓰는 화면: 아기 얼굴 등록·검출 결과 화면, 갤러리에서 올릴 사진 고르는 화면, 타임라인, 뮤직비디오 생성",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+      ],
+      "features": [
+        9,
+        10
       ]
     }
   ]
