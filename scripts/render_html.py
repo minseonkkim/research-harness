@@ -1,4 +1,4 @@
-"""통합 보고서를 훑어보기 쉬운 단일 HTML 문서로 렌더링한다.
+"""통합 보고서를 단일 HTML 문서로 렌더링한다: 1) 앱별 설명 카드 2) 관점에 맞는 기능 추천순.
 
 사용법:
   python3 scripts/render_html.py <template.json> <merge-dir> <out.html> \
@@ -8,7 +8,7 @@
   rows.json      merge_report.mjs prepare 가 만든 대상별 원본 데이터 (부록의 원문·출처)
   sections.json  작성 에이전트의 패턴 분석 원문 (부록)
   profiles.json  앱별 요약 카드 데이터 (필수, SKILL.md 참고)
-  brief.json     요약·선택 흐름 (필수, SKILL.md 참고)
+  features.json  이어북 추천 기능 순위 (필수, SKILL.md 참고)
   groups.json    {"order": [...], "groups": {이름: 유형}, "badges": {이름: 배지}} (선택)
   links.json     {이름: {"play": 패키지, "ios": 앱ID, "galaxy": 패키지, "web": URL}} (선택)
 
@@ -44,7 +44,7 @@ data = load("rows.json")
 rows, unverified = data["rows"], data["unverified"]
 sections = {s["key"]: s["markdown"] for s in load("sections.json", [])}
 profiles = {p["name"]: p for p in load("profiles.json")}
-brief = load("brief.json")
+FEATURES = load("features.json", [])
 G = load("groups.json", {"order": [], "groups": {}, "badges": {}})
 LINKS = load("links.json", {})
 esc = html.escape
@@ -114,13 +114,6 @@ def store_buttons(name):
         f'<a class="store {k}" href="{esc(u)}" target="_blank" rel="noopener">{esc(t)} ↗</a>' for t, u, k in b) + "</div>"
 
 
-# ───────── matrix ─────────
-MCOLS = [("child_filter", "아이 자동 필터"), ("similar_group", "유사 사진 묶기"), ("best_cut", "베스트컷 추천"),
-         ("junk_filter", "불필요 사진 제외"), ("auto_suggest", "기간별 자동 제안"), ("review_ui", "자동 선택 후 검토"),
-         ("progress", "월 분할·이어하기"), ("swipe", "스와이프 판정")]
-SYM = {"yes": '<span class="m y" title="있음"></span>', "partial": '<span class="m p" title="일부"></span>',
-       "no": '<span class="m n" title="없음"></span>', "unknown": '<span class="m u" title="미확인">?</span>'}
-
 parts, nav = [], []
 
 
@@ -128,26 +121,6 @@ def section(sid, title, body, lead=""):
     nav.append((sid, title))
     parts.append(f'<section id="{sid}"><h2>{esc(title)}</h2>{lead}{body}</section>')
 
-
-# 1. 요약
-section("summary", "핵심 요약",
-        '<ol class="summary">' + "".join(f"<li>{inline(s)}</li>" for s in brief["summary"]) + "</ol>")
-
-# 2. 기능 비교
-chips = '<div class="chips"><button class="chip on" data-f="*">전체 ' + str(len(rows)) + "</button>" + "".join(
-    f'<button class="chip" data-f="{esc(g)}">{esc(g)} {sum(1 for r in rows if group_of(r["name"]) == g)}</button>'
-    for g in order) + "</div>"
-trs = []
-for g in order:
-    trs.append(f'<tr class="grp" data-group="{esc(g)}"><th colspan="{len(MCOLS) + 1}">{esc(g)}</th></tr>')
-    for r in [r for r in rows if group_of(r["name"]) == g]:
-        mx = profiles.get(r["name"], {}).get("matrix", {})
-        trs.append(f'<tr data-group="{esc(g)}"><th scope="row"><a href="#{aid(r["name"])}">{esc(short_name(r["name"]))}</a></th>'
-                   + "".join(f"<td>{SYM.get(mx.get(k, 'unknown'), SYM['unknown'])}</td>" for k, _ in MCOLS) + "</tr>")
-matrix = (chips + '<div class="tw"><table class="matrix"><thead><tr><th>앱</th>'
-          + "".join(f"<th>{esc(t)}</th>" for _, t in MCOLS) + "</tr></thead><tbody>" + "".join(trs) + "</tbody></table></div>"
-          + '<p class="legend"><span class="m y"></span> 있음 <span class="m p"></span> 일부 <span class="m n"></span> 없음 <span class="m u">?</span> 미확인 · 앱 이름을 누르면 상세 카드로 이동</p>')
-section("matrix", "기능 비교", matrix, '<p class="lead">사진 선택에 관련된 기능만 골라 표시했다.</p>')
 
 # 3. 앱 목록
 cards = []
@@ -185,39 +158,29 @@ for g in order:
             "</article>")
     cards.append(f'<div class="grp-block" data-group="{esc(g)}"><h3 class="gh">{esc(g)} <span class="count">{len(items)}</span></h3>'
                  f'<div class="apps">{"".join(cs)}</div></div>')
-section("apps", "앱별 정리", "".join(cards), '<p class="lead">설치 링크 · 기본 정보 · 사진 선택 관련 기능 · 참고할 점 순서. 원문과 출처는 카드 아래 펼치기.</p>')
+section("apps", "1. 앱별 설명", "".join(cards), '<p class="lead">설치 링크 · 기본 정보 · 사진 선택 관련 기능 · 참고할 점 순서. 원문과 출처는 카드 아래 펼치기.</p>')
 
-# 4. 선택 흐름
-steps = []
-for s in brief["flow"]:
-    refs = "".join(f'<span class="ref">{esc(x)}</span>' for x in s.get("refs", []))
-    steps.append(
-        f'<li class="step"><div class="num">{esc(str(s["step"]))}</div><div class="sb">'
-        f'<h3>{esc(s["title"])}' + (' <span class="tag inf">추론 위주</span>' if s.get("inferred") else "") + "</h3>"
-        f'<p class="what">{inline(s["what"])}</p><ul>' + "".join(f"<li>{inline(x)}</li>" for x in s.get("how", [])) + "</ul>"
-        + (f'<div class="refs">근거 앱 {refs}</div>' if refs else "") + "</div></li>")
-yr = brief.get("year_round")
-yr_html = (f'<div class="yr"><h3>{esc(yr["title"])}</h3><ul>' + "".join(f"<li>{inline(x)}</li>" for x in yr.get("how", []))
-           + "</ul>" + (f'<div class="refs">근거 앱 ' + "".join(f'<span class="ref">{esc(x)}</span>' for x in yr.get("refs", [])) + "</div>")
-           + "</div>") if yr else ""
-cau = ('<div class="cautions"><h3>주의할 점</h3><ul>' + "".join(f"<li>{inline(x)}</li>" for x in brief.get("cautions", []))
-       + "</ul></div>") if brief.get("cautions") else ""
-section("flow", "제안: 사진 선택 흐름", f'<ol class="steps">{"".join(steps)}</ol>{yr_html}{cau}',
-        '<p class="lead">조사한 앱 사례로 만든 이어북 사진 선택 → 레이아웃 설계안.</p>')
-
-# 5. 부록
-by_app = {}
-for u in unverified:
-    n = next((r["name"] for r in rows if u.startswith(r["name"])), "기타")
-    by_app.setdefault(n, []).append(u[len(n):].lstrip(" :/").strip() if n != "기타" else u)
-gaps = "".join(f'<details><summary>{esc(short_name(n))} <span class="count">{len(v)}</span></summary><ul>'
-               + "".join(f"<li>{esc(x)}</li>" for x in v) + "</ul></details>" for n, v in by_app.items())
-appx = ((f'<details class="big"><summary>기능 패턴 분석 원문</summary><div class="prose">{md(sections["patterns"])}</div></details>'
-         if sections.get("patterns") else "")
-        + (f'<details class="big"><summary>기획 시사점 원문</summary><div class="prose">{md(sections["implications"])}</div></details>'
-           if sections.get("implications") else "")
-        + f'<details class="big"><summary>확인하지 못한 것 ({len(unverified)}개)</summary><div class="prose">{gaps}</div></details>')
-section("appendix", "부록", appx, '<p class="lead">원래의 긴 분석 글과 미확인 항목.</p>')
+# 2. 이어북 추천 기능 (추천순)
+TIER = {"필수": "t1", "추천": "t2", "고려": "t3"}
+fs = []
+for f in FEATURES:
+    apps = "".join(
+        f'<li><a href="#{aid(x["name"])}">{esc(short_name(x["name"]))}</a> <span class="an">{inline(x.get("note", ""))}</span></li>'
+        if x["name"] in idx else f'<li>{esc(x["name"])} <span class="an">{inline(x.get("note", ""))}</span></li>'
+        for x in f.get("apps", []))
+    fs.append(
+        f'<article class="feat"><div class="rank">{esc(str(f["rank"]))}</div><div class="fb">'
+        f'<div class="fh"><h3>{esc(f["name"])}</h3><span class="tier {TIER.get(f.get("tier"), "t3")}">{esc(f.get("tier", ""))}</span></div>'
+        f'<p class="what">{inline(f.get("what", ""))}</p>'
+        f'<p class="why"><strong>이어북에 좋은 이유</strong> {inline(f.get("why", ""))}</p>'
+        + ('<h4>적용 포인트</h4><ul>' + "".join(f"<li>{inline(x)}</li>" for x in f.get("how", [])) + "</ul>" if f.get("how") else "")
+        + (f'<h4>이 기능이 있는 앱</h4><ul class="fapps">{apps}</ul>' if apps else "")
+        + f'<p class="evi">근거 · {inline(f.get("evidence", ""))}</p>'
+        + (f'<p class="caution">⚠ {inline(f["watch_out"])}</p>' if f.get("watch_out") else "")
+        + "</div></article>")
+section("features", "2. 이어북에 쓰면 좋을 기능 (추천순)", '<div class="feats-list">' + "".join(fs) + "</div>",
+        '<p class="lead">조사한 앱들의 기능을 모아, 이어북 사진 선택에 도움이 되는 정도와 근거의 강도로 순위를 매겼다. '
+        '<span class="tier t1">필수</span> <span class="tier t2">추천</span> <span class="tier t3">고려</span></p>')
 
 navhtml = "".join(f'<a href="#{i}">{esc(t)}</a>' for i, t in nav)
 meta = (f"<span>기준일 {esc(a.date)}</span><span>앱 {len(rows)}개</span>"
@@ -286,6 +249,15 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:9px 12px;
 details.big{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:10px 0}
 details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padding:0 22px 16px;font-size:14.5px}
 .prose details summary{cursor:pointer;padding:4px 0}.prose details ul{margin:2px 0 8px}
+.feats-list{display:flex;flex-direction:column;gap:14px}
+.feat{display:flex;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.rank{flex:none;width:44px;height:44px;border-radius:12px;background:var(--asoft);color:var(--accent);font-weight:800;font-size:20px;display:grid;place-items:center}
+.fb{flex:1;min-width:0}.fh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.fh h3{font-size:18px;margin:0}
+.tier{font-size:12px;font-weight:700;border-radius:6px;padding:1px 8px}.tier.t1{background:var(--evs);color:var(--ev)}.tier.t2{background:var(--asoft);color:var(--accent)}.tier.t3{background:var(--soft);color:var(--muted)}
+.feat .what{margin:4px 0 8px;color:var(--muted)}.why{margin:0 0 4px;font-size:15px}.why strong{color:var(--accent);margin-right:6px;font-size:13.5px}
+.feat h4{font-size:13.5px;color:var(--muted);margin:12px 0 4px}.feat ul{margin:0;padding-left:18px;font-size:14.5px}.feat li{margin:3px 0}
+.fapps .an{color:var(--muted);font-size:13.5px}.evi{font-size:13px;color:var(--muted);margin:12px 0 0}
+@media (max-width:860px){.feat{padding:14px;gap:12px}.rank{width:36px;height:36px;font-size:17px}}
 .muted{color:var(--muted);font-size:13px}
 .theme{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
 footer{color:var(--muted);font-size:13px;text-align:center}
