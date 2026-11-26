@@ -278,7 +278,7 @@
     "developer": "개인 개발자 · 한국",
     "scale": "Play 5.0(리뷰 7) · 1천+ 다운로드",
     "price": "무료 10GB + 30GB 월 3,900원",
-    "ai": "얼굴·베스트컷 분석 온디바이스",
+    "ai": "전부 기기 안(YOLO11n·EdgeFace·SigLIP2·LiteRT)",
     "selection_features": [
       "얼굴 1회 지정 → 아이 사진 자동 수집",
       "애매한 얼굴 '맞아요/아니에요' 확인",
@@ -304,7 +304,7 @@
       "progress": "no",
       "swipe": "no"
     },
-    "caution": "정리 기능은 자사 설명만 근거"
+    "caution": "정리 로직은 APK 설정 파일로 확인, 정확도는 미검증"
   },
   {
     "name": "PhotoKip 포토킵",
