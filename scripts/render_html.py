@@ -199,6 +199,16 @@ if TECH:
             f'<ol class="psteps">{psteps}</ol></div>' if psteps else "")
     if TECH.get("principles"):
         head += '<div class="principles"><h3>전체 원칙</h3><ul>' + "".join(f"<li>{inline(x)}</li>" for x in TECH["principles"]) + "</ul></div>"
+    APKS = TECH.get("apk_analyses", [])
+    for an in APKS:
+        name = f'<a href="#{aid(an["app_ref"])}">{esc(an["app"])}</a>' if an.get("app_ref") in idx else esc(an["app"])
+        head += (f'<div class="apkbox"><h3>APK 분석: {name} <span class="sub">{esc(an.get("version", ""))}</span></h3>'
+                 f'<dl class="info"><div><dt>출처</dt><dd>{esc(an.get("source", ""))}</dd></div>'
+                 f'<div><dt>서명</dt><dd>{esc(an.get("signature", ""))}</dd></div></dl>'
+                 '<ul>' + "".join(f"<li>{inline(x)}</li>" for x in an.get("findings", [])) + "</ul>"
+                 f'<p class="evi">{esc(an.get("method", ""))}'
+                 + (' · 관련 기능 ' + " ".join(f'<a href="#tech-{n}">{n}</a>' for n in an.get("features", [])) if an.get("features") else "")
+                 + "</p></div>")
     tcs = []
     for t in TECH.get("features", []):
         def app_link(c):
@@ -217,6 +227,9 @@ if TECH:
             f'<a class="back" href="#feat-{esc(str(t["rank"]))}">기능 설명 ↑</a></div>'
             + '<div class="chips2">' + "".join(f'<span class="tchip">{esc(x)}</span>' for x in t.get("stack", [])) + "</div>"
             + (f'<h4>앱에서 확인된 구현</h4><ul>{conf}</ul>' if conf else '<h4>앱에서 확인된 구현</h4><p class="muted">공개 근거 없음</p>')
+            + ('<h4>APK 분석으로 확인</h4><ul class="apkf">' + "".join(
+                f'<li><strong>{app_link(c)}</strong> {inline(c.get("what", ""))}</li>' for c in t.get("apk_findings", [])) + "</ul>"
+               if t.get("apk_findings") else "")
             + '<h4>구현 단계</h4><ol class="isteps">' + "".join(f"<li>{inline(x)}</li>" for x in t.get("steps", [])) + "</ol>"
             + '<div class="tgrid">'
             + f'<div><h4>처리 위치</h4><p>{inline(t.get("where", ""))}</p></div>'
@@ -228,7 +241,7 @@ if TECH:
     section("tech", "3. 추천 기능의 기술 구현", head + '<div class="feats-list">' + "".join(tcs) + "</div>",
             '<p class="lead">공개 자료(기술 블로그·논문·특허·도움말·개인정보처리방침·릴리스 노트)로 확인한 구현과, Android에서 만들 때의 권장 구현. '
             '<span class="tier t1">확인됨</span> 앱이 쓴 기술이 공개 근거로 확인 · <span class="tier t2">일부 확인</span> · <span class="tier t3">공개 근거 없음</span> '
-            '앱 APK 분석은 아직 하지 않았다.</p>')
+            + (f'APK 정적 분석: {len(APKS)}개 앱 ({", ".join(esc(x["app"]) for x in APKS)}).</p>' if APKS else '앱 APK 분석은 아직 하지 않았다.</p>'))
 
 navhtml = "".join(f'<a href="#{i}">{esc(t)}</a>' for i, t in nav)
 meta = (f"<span>기준일 {esc(a.date)}</span><span>앱 {len(rows)}개</span>"
@@ -307,6 +320,9 @@ details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padd
 .fapps .an{color:var(--muted);font-size:13.5px}.evi{font-size:13px;color:var(--muted);margin:12px 0 0}
 @media (max-width:860px){.feat{padding:14px;gap:12px}.rank{width:36px;height:36px;font-size:17px}}
 .techlink{margin:10px 0 0;font-size:13.5px}
+.apkbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ev);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.apkbox h3{font-size:17px;margin:0 0 8px}.apkbox .sub{font-size:13px;color:var(--muted);font-weight:500}.apkbox ul{margin:8px 0 0;padding-left:18px;font-size:14.5px}
+.apkf li::marker{color:var(--ev)}
 .pipe,.principles{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px}
 .pipe h3,.principles h3{font-size:17px;margin:0 0 4px}.principles ul{margin:6px 0 0;padding-left:18px;font-size:14.5px}
 .psteps{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}

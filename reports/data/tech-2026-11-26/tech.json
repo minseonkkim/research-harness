@@ -194,6 +194,13 @@
         "'Screenshots'·'owner_package_name' 문자열",
         "libopencv_java4.so",
         "<queries> 선언, DEPENDENCIES=ocr"
+      ],
+      "apk_findings": [
+        {
+          "app": "쑥쑥찰칵",
+          "app_ref": "쑥쑥찰칵 (Babyfolio)",
+          "what": "ML Kit OCR 모델 내장(서류·글자 사진 판정에 쓸 수 있는 구성, 용도는 미확인)"
+        }
       ]
     },
     {
@@ -572,6 +579,18 @@
         "assets mobilefacenet*.tflite, w600k*.onnx",
         "libtensorflowlite_jni.so, libonnxruntime.so",
         "짜잔: *.supabase.co, 얼굴 업로드 API 없음"
+      ],
+      "apk_findings": [
+        {
+          "app": "쑥쑥찰칵",
+          "app_ref": "쑥쑥찰칵 (Babyfolio)",
+          "what": "자체 얼굴 인식 모듈이 HMS ML Kit 얼굴 검증으로 얼굴 비교·최대 유사도 계산"
+        },
+        {
+          "app": "쑥쑥찰칵",
+          "app_ref": "쑥쑥찰칵 (Babyfolio)",
+          "what": "눈 뜸·얼굴 크기 조건 판정 후 매칭, 엔진은 온디바이스(.so 내장)"
+        }
       ]
     },
     {
@@ -874,6 +893,13 @@
         "DEPENDENCIES=face 메타데이터",
         "libface_detector_v2_jni.so",
         "응답 JSON의 crop·face 필드"
+      ],
+      "apk_findings": [
+        {
+          "app": "쑥쑥찰칵",
+          "app_ref": "쑥쑥찰칵 (Babyfolio)",
+          "what": "MediaPipe 얼굴 검출(BlazeFace short range)로 얼굴 박스·메시·베스트 얼굴 크롭"
+        }
       ]
     },
     {
@@ -985,6 +1011,31 @@
         "com.google.mlkit.genai.prompt",
         "generativelanguage.googleapis.com, api.anthropic.com",
         "*.task / *.litertlm 모델 파일"
+      ]
+    }
+  ],
+  "apk_analyses": [
+    {
+      "app": "쑥쑥찰칵",
+      "app_ref": "쑥쑥찰칵 (Babyfolio)",
+      "package": "com.jejememe.daybabyday",
+      "version": "1.9.06 (1015)",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + xxhdpi)",
+      "signature": "APK v2 서명, Google Play 앱 서명 인증서(CN=Android, Google Inc.) · SHA-256 f5c4b4ce…a865c4",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1, 공식 해시 일치) 정적 분석. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "자체 얼굴 인식 모듈 com.jejememe.facerecognition: Huawei HMS ML Kit 얼굴 분석·얼굴 검증(MLFaceVerificationAnalyzer) 사용",
+        "모듈 기능명: 얼굴 비교·미디어 비교·최대 유사도·눈 뜸·얼굴 조건 판정, 얼굴·사진 최대 크기 상수",
+        "온디바이스 엔진 흔적: libhiai_face_compare.so, libmlface.so, libmindspore-lite.so(arm64)",
+        "자체 세그멘테이션 모듈 com.jejememe.segmentation: MediaPipe Face Detector(face_detection_short_range.tflite) + 얼굴 메시·박스·베스트 얼굴 크롭",
+        "ML Kit 텍스트 인식(OCR)·바코드 모델 내장, MediaPipe Tasks Vision 전체(이미지 임베더 포함, 사용 흔적은 없음)",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED(부분 접근), ACCESS_MEDIA_LOCATION(사진 위치)",
+        "기타: Lynx(ByteDance) UI 런타임, FFmpeg·VLC 미디어, 광고 SDK 다수"
+      ],
+      "features": [
+        7,
+        12,
+        1
       ]
     }
   ]
