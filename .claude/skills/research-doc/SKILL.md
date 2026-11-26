@@ -73,8 +73,7 @@ raw가 작으면(수십 KB) 워크플로 `mode: "merge", raw: [...]`로도 된�
    - `links.json`: `{대상이름: {"play": 패키지, "ios": 앱ID, "galaxy": 패키지, "web": URL}}`. 조사 데이터의 출처 URL은 형식이 섞여 있으니 스토어 ID로 직접 정리하고, curl로 각 링크가 열리는지 확인한다.
 2. 에이전트 1개(general-purpose)에게 `rows.json`·`sections.json`만 근거로 두 파일을 쓰게 한다(웹 검색 금지).
    - `profiles.json`: 대상마다 `{name, one_liner, developer, scale, price, ai, selection_features[], takeaways[], cons[], matrix{child_filter, similar_group, best_cut, junk_filter, auto_suggest, review_ui, progress, swipe: yes|partial|no|unknown}, caution}`. 항목은 짧게(각 40~50자 이내).
-   - `brief.json`: `{summary[], flow[{step, title, what, how[], refs[], inferred}], year_round{title, how[], refs[]}, cautions[]}`
-   - matrix 키는 사진 선택 관점용이다. 다른 관점이면 `scripts/render_html.py`의 `MCOLS`도 함께 바꾼다.
+   - `features.json`: 모든 앱의 기능을 모아 관점에 맞게 추천순으로 정렬한 10~14개. `[{rank, name, tier: 필수|추천|고려, what, why, how[], apps[{name(rows.json 이름 그대로), note}], evidence, watch_out}]`. 순위 기준은 관점 기여도 → 근거 강도(대형 앱·검증 우선) → 적용 적합성.
 3. 렌더링:
 
 ```
@@ -82,5 +81,5 @@ python3 scripts/render_html.py templates/<양식>.json reports/data/merge-<날�
   --title "..." --lens "..." --date <오늘>
 ```
 
-- 구성: 핵심 요약 → 기능 비교 매트릭스(유형 필터) → 앱별 카드(설치 링크·기본 정보·사진 선택 기능·참고할 점·아쉬운 점, 원문과 출처는 펼치기) → 선택 흐름 단계 → 부록(긴 분석 원문, 미확인 목록). 다크 모드와 모바일 지원.
+- 구성은 두 부분뿐이다: 1) 앱별 설명 카드(설치 링크·기본 정보·관점 관련 기능·참고할 점·아쉬운 점, 원문과 출처는 펼치기) 2) 관점에 쓰면 좋을 기능 추천순(필수/추천/고려, 적용 포인트, 그 기능이 있는 앱 링크). 사용자가 긴 줄글을 읽기 어렵다고 해서 이렇게 정했다. 다크 모드와 모바일 지원.
 - 렌더링 후 Playwright로 데스크톱·모바일 스크린샷을 찍어 깨짐과 가로 스크롤이 없는지 확인한다.
