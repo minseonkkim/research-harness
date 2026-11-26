@@ -83,3 +83,4 @@ python3 scripts/render_html.py templates/<양식>.json reports/data/merge-<날�
 
 - 구성은 두 부분뿐이다: 1) 앱별 설명 카드(설치 링크·기본 정보·관점 관련 기능·참고할 점·아쉬운 점, 원문과 출처는 펼치기) 2) 관점에 쓰면 좋을 기능 추천순(필수/추천/고려, 적용 포인트, 그 기능이 있는 앱 링크). 사용자가 긴 줄글을 읽기 어렵다고 해서 이렇게 정했다. 다크 모드와 모바일 지원.
 - 렌더링 후 Playwright로 데스크톱·모바일 스크린샷을 찍어 깨짐과 가로 스크롤이 없는지 확인한다.
+- 기술 구현 조사(`templates/tech-implementation.json`, 대상 = 기능)를 했다면 3번 섹션을 붙일 수 있다. 조사 raw를 `merge_report.mjs prepare`로 rows.json으로 만든 뒤, 에이전트에게 `tech.json`(`{pipeline{title, lead, steps[{name, detail, tech[], serves[rank]}]}, principles[], features[{rank, name, level: 확인됨|일부 확인|공개 근거 없음, confirmed[{app, app_ref, what, source}], stack[], steps[], where, data[], watch[], apk_checks[]}]}`)을 쓰게 하고 `--tech <tech.json>`을 넘긴다.

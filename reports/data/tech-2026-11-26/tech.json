@@ -1,0 +1,965 @@
+{
+  "pipeline": {
+    "title": "공통 분석 파이프라인",
+    "lead": "갤러리를 한 번 읽고 한 번 디코드해 14개 기능이 같은 특징값을 나눠 쓴다",
+    "steps": [
+      {
+        "name": "수집·증분 색인",
+        "detail": "MediaStore 메타(촬영일·경로·즐겨찾기·generation)를 Room에 적재",
+        "tech": [
+          "MediaStore",
+          "ExifInterface",
+          "Room"
+        ],
+        "serves": [
+          1,
+          2,
+          3,
+          4,
+          8,
+          9,
+          10
+        ]
+      },
+      {
+        "name": "규칙 필터",
+        "detail": "경로·출처 앱·MIME·EXIF로 스크린샷·메신저 이미지 즉시 제외",
+        "tech": [
+          "RELATIVE_PATH",
+          "OWNER_PACKAGE_NAME",
+          "ExifInterface"
+        ],
+        "serves": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "name": "단일 패스 분석",
+        "detail": "다운샘플 1회 디코드로 얼굴·임베딩·선명도 동시 계산",
+        "tech": [
+          "WorkManager",
+          "ML Kit Face Detection",
+          "MediaPipe Image Embedder",
+          "Laplacian 분산"
+        ],
+        "serves": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          11,
+          12,
+          14
+        ]
+      },
+      {
+        "name": "얼굴 임베딩·아이 매칭",
+        "detail": "얼굴 crop 임베딩을 아이 앵커와 코사인 비교",
+        "tech": [
+          "LiteRT MobileFaceNet",
+          "코사인 유사도"
+        ],
+        "serves": [
+          1,
+          4,
+          12,
+          14
+        ]
+      },
+      {
+        "name": "묶음·이벤트 분할",
+        "detail": "시간창+유사도로 연사 묶음, 시간 간격·GPS로 이벤트 분할",
+        "tech": [
+          "dHash",
+          "연결 요소",
+          "Geocoder"
+        ],
+        "serves": [
+          2,
+          4,
+          10,
+          11
+        ]
+      },
+      {
+        "name": "선별 엔진",
+        "detail": "점수+월·이벤트 쿼터+다양성으로 추천 세트 생성",
+        "tech": [
+          "Kotlin",
+          "MMR",
+          "SelectionParams"
+        ],
+        "serves": [
+          4,
+          5,
+          9,
+          14
+        ]
+      },
+      {
+        "name": "선택 상태 저장",
+        "detail": "포함·제외·보류 상태와 Undo 로그, 사용자 수정 보존",
+        "tech": [
+          "Room",
+          "Paging 3",
+          "Compose"
+        ],
+        "serves": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          11,
+          13
+        ]
+      }
+    ]
+  },
+  "principles": [
+    "사진 분석은 온디바이스, 서버엔 선택 결과·crop 좌표만",
+    "디코드는 한 번, 특징값은 Room에 캐시하고 증분 처리",
+    "원본은 건드리지 않고 상태만 저장, 사용자 수정은 재계산에도 보존",
+    "랭킹은 룰 기반부터, 편집 로그로 Recall@N 평가 (みてね 근거)"
+  ],
+  "features": [
+    {
+      "rank": 1,
+      "name": "아이 얼굴로 후보 자동 수집",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "기기에서 얼굴 인식, 아이 얼굴 프로필 미보관 (모델 비공개)",
+          "source": "https://help.chatbooks.com/en/articles/17710109-how-does-chatbooks-find-photos-of-my-child-for-the-kid-yearbook"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "얼굴 특징값·좌표는 기기에만, 서버 미전송 (모델 비공개)",
+          "source": "https://zzazan.ai/privacy"
+        },
+        {
+          "app": "키즈로그",
+          "app_ref": "키즈로그 - 사진분류, 알림장, 보육일지",
+          "what": "자체 서버 InsightFace, bbox+512차원 임베딩 저장",
+          "source": "https://kidslog-web.vercel.app/privacy"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "검출→수치 얼굴 모델→유사도 그룹, 계정 단위 저장",
+          "source": "https://support.google.com/photos/answer/6128838?hl=en"
+        }
+      ],
+      "stack": [
+        "ML Kit Face Detection",
+        "MediaPipe Face Detector",
+        "LiteRT MobileFaceNet",
+        "WorkManager",
+        "Room",
+        "Paging 3"
+      ],
+      "steps": [
+        "MediaStore로 연도·생일 기준 기간 사진 색인",
+        "얼굴 검출→5점 정렬→임베딩, Room에 증분 저장",
+        "얼굴 클러스터(HAC) 그리드에서 아이 탭 지정",
+        "앵커와 코사인: 상한 이상 포함, 하한 미만 제외",
+        "중간 구간은 '확인할 사진' 큐, 답으로 앵커 갱신"
+      ],
+      "where": "온디바이스 (얼굴 데이터 서버 미전송)",
+      "data": [
+        "face(photo_id, bbox, embedding[128], quality)",
+        "child_anchor(child_id, month, embedding)",
+        "face_match(photo_id, child_id, score, status)"
+      ],
+      "watch": [
+        "InsightFace 사전학습 가중치는 비상업 연구 전용",
+        "영유아는 나이 차로 점수 하락→월별 앵커 (추론)",
+        "ML Kit는 검출만, 인식용 임베딩 모델 별도"
+      ],
+      "apk_checks": [
+        "mlkit.vision.face / mediapipe facedetector",
+        "assets mobilefacenet*.tflite, w600k*.onnx",
+        "libtensorflowlite_jni.so, libonnxruntime.so",
+        "짜잔: *.supabase.co, 얼굴 업로드 API 없음"
+      ]
+    },
+    {
+      "rank": 2,
+      "name": "유사·연사 묶음 + 베스트컷",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "Pixel Top Shot",
+          "app_ref": "",
+          "what": "MobileNet 얼굴 속성(눈뜸·미소·흐림)+GAM, 모션 블러·3A 점수",
+          "source": "https://research.google/blog/top-shot-on-pixel-3/"
+        },
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "짧은 시간 거의 같은 사진 스택+Top pick, 백업 사진만 (모델 비공개)",
+          "source": "https://support.google.com/photos/answer/14169846"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "선명도·아이 얼굴·표정으로 베스트컷, 모델 앱 내장 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=ai.zzazan.app&hl=ko&gl=KR"
+        },
+        {
+          "app": "사진쏙",
+          "app_ref": "사진쏙 - 중복·유사 사진 정리",
+          "what": "선명도·눈뜸·미소 기준, 기기 내 분석 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.snappick.app&hl=ko&gl=KR"
+        },
+        {
+          "app": "BestCut",
+          "app_ref": "BestCut: AI Photo Selection",
+          "what": "비슷한 시간·각도 사진 그룹화 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.basicworld.BestCut&hl=ko&gl=KR"
+        }
+      ],
+      "stack": [
+        "MediaPipe Image Embedder",
+        "dHash",
+        "ML Kit Face Detection",
+        "Laplacian 분산",
+        "WorkManager",
+        "Room"
+      ],
+      "steps": [
+        "시간순 정렬, N초 이내 인접 사진만 비교 (추론)",
+        "썸네일로 dHash·임베딩·선명도·눈뜸/미소 계산",
+        "코사인·해밍 임계값으로 연결 요소 묶음",
+        "품질 가중합으로 top pick, 교체는 pick_override",
+        "대표+장수 배지, 대표 지정·묶음 해제 UI"
+      ],
+      "where": "온디바이스 (WorkManager 증분)",
+      "data": [
+        "photo_feat(photo_id, dhash, emb[1024], sharp)",
+        "cluster_member(cluster_id, photo_id, score)",
+        "pick_override(cluster_id, photo_id)"
+      ],
+      "watch": [
+        "Embedder 3.9ms/장, 주 비용은 디코딩 (추론)",
+        "오묶음 보고 있음→임계값 튜닝·해제 UX",
+        "CLIP 계열은 수십~수백 MB로 무거움"
+      ],
+      "apk_checks": [
+        "mediapipe.tasks.vision.imageembedder",
+        "mobilenet_v3*.tflite, nima*.tflite",
+        "'dhash'·'laplacian'·'topPick' 문자열",
+        "libmediapipe_tasks_vision_jni.so"
+      ]
+    },
+    {
+      "rank": 3,
+      "name": "책에 안 넣을 사진 자동 제외",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "Google 포토",
+          "app_ref": "Google 포토 (Google Photos)",
+          "what": "출처 앱 기준 Hide clutter 적용 (분류 모델 비공개)",
+          "source": "https://support.google.com/photos/answer/14169846"
+        },
+        {
+          "app": "사진정리 한방",
+          "app_ref": "사진정리 한방 - 중복 사진·동영상 한번에 삭제",
+          "what": "저장 경로·초점 흐림·글자량 판정, 기기 내 증분 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=kr.photo.hanbang&hl=ko&gl=KR"
+        },
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "스크린샷 숨기기·고해상도만 필터 (자사 설명)",
+          "source": "https://chatbooks.com/products/photo-books"
+        },
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "업로드 후 AI가 스크린샷·중복 제거 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6758901120"
+        }
+      ],
+      "stack": [
+        "MediaStore",
+        "ExifInterface",
+        "ML Kit Image Labeling",
+        "ML Kit Text Recognition v2",
+        "Laplacian 분산",
+        "Room"
+      ],
+      "steps": [
+        "1차 규칙: 경로·OWNER_PACKAGE·MIME·EXIF 판정",
+        "2차(WorkManager): 흐림, 라벨, OCR 글자량",
+        "얼굴·즐겨찾기 사진은 '의심'으로만 강등",
+        "제외 사유·점수 저장, 버전 바뀌면 재계산",
+        "숨김 칩+사유별 복원 시트, 출처 앱별 설정"
+      ],
+      "where": "온디바이스 (규칙+경량 모델)",
+      "data": [
+        "exclusion(photo_id, reason, score, override)",
+        "photo_meta(rel_path, owner_pkg, mime, is_fav)"
+      ],
+      "watch": [
+        "OWNER_PACKAGE_NAME은 NULL 가능, <queries> 필요",
+        "보케·저텍스처 장면 흐림 오탐→삭제 대신 숨김",
+        "언번들 ML Kit는 Play 서비스(GMS) 필요"
+      ],
+      "apk_checks": [
+        "mlkit.vision.text(.korean), vision.label",
+        "'Screenshots'·'owner_package_name' 문자열",
+        "libopencv_java4.so",
+        "<queries> 선언, DEPENDENCIES=ocr"
+      ]
+    },
+    {
+      "rank": 4,
+      "name": "점수 + 월별 분산 자동 추천",
+      "level": "확인됨",
+      "confirmed": [
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "필터 완화→점수→가중 랜덤 세트 여러 개→분산 최고 채택(서버)",
+          "source": "https://gihyo.jp/article/2023/09/mitene-09-photobook"
+        },
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "프린트 추천 LightGBM 시험, A/B 효과 작아 룰로 복귀",
+          "source": "https://gihyo.jp/article/2025/09/mitene-12-printphoto"
+        },
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "RetinaFace MobileNet TFLite 942KB 단말 검출, 실패 시 서버",
+          "source": "https://speakerdeck.com/mixi_engineers/on-device-ml-cost-cut"
+        },
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "Gemini·Claude API로 사진 점수·캡션·레이아웃",
+          "source": "https://lifecache.ai/privacy"
+        }
+      ],
+      "stack": [
+        "ML Kit Face Detection",
+        "LiteRT",
+        "MediaPipe Image Embedder",
+        "WorkManager",
+        "Room",
+        "Kotlin MMR"
+      ],
+      "steps": [
+        "사진별 품질·얼굴·즐겨찾기 특징 캐시",
+        "장면 묶음 후 장면당 대표 1장만 후보",
+        "후보 부족 시 필터 단계 완화 (みてね 방식)",
+        "월별 쿼터 배정, MMR 또는 가중 랜덤 세트 K개",
+        "세트 점수(총점+날짜 분산) 최고 세트 채택"
+      ],
+      "where": "온디바이스 (선정은 Kotlin 순수 함수)",
+      "data": [
+        "photo_score(photo_id, quality, faces, scene)",
+        "month_quota(year_month, target_n)"
+      ],
+      "watch": [
+        "200ms/장 모델이면 1만 장 30분+ (추론)",
+        "ML 랭킹은 나중에, 룰 기반으로 시작",
+        "작은 얼굴 모델은 정확도 소폭 하락(99.22→98.64%)"
+      ],
+      "apk_checks": [
+        "us.mitene assets retina*.tflite",
+        "libtensorflowlite_jni.so",
+        "'photobook'·'suggest' API 경로",
+        "Room score·quality 컬럼"
+      ]
+    },
+    {
+      "rank": 5,
+      "name": "자동 선택 후 검토 탭(추천 N/전체 M)",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "서버 배치로 23장 제안→푸시→사용자 교체 후 주문",
+          "source": "https://gihyo.jp/article/2023/09/mitene-09-photobook"
+        },
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "Smart Select 체크 해제·'Selected' 토글, 앱 전용 (알고리즘 비공개)",
+          "source": "https://help.chatbooks.com/en/articles/16531937-what-is-smart-select"
+        },
+        {
+          "app": "Mixbook",
+          "app_ref": "Mixbook (Memories)",
+          "what": "메타데이터 스캔 ML로 선택·라벨·그룹 (자사 설명)",
+          "source": "https://prnewswire.com/news-releases/mixbook-enhances-mobile-app-with-powerful-new-photo-organization-feature-301817423.html"
+        }
+      ],
+      "stack": [
+        "Room",
+        "Compose TabRow",
+        "Paging 3",
+        "LazyVerticalGrid",
+        "StateFlow"
+      ],
+      "steps": [
+        "선별 엔진 결과를 isRecommended로 저장",
+        "'추천 N / 전체 M' TabRow+Paging 3 그리드",
+        "체크 토글은 userOverride로 따로 기록",
+        "재계산 시 userOverride 행은 덮어쓰지 않음",
+        "편집 로그로 Recall@N 평가"
+      ],
+      "where": "온디바이스 (편집 로그만 선택적 서버 전송)",
+      "data": [
+        "selection(photo_id, is_rec, is_sel, override)"
+      ],
+      "watch": [
+        "개수는 Room Flow count로 실시간 집계 (추론)",
+        "페이지 수 기준 최소·최대 장수 검증",
+        "Google 포토북 자동 선택은 2018 2차 출처뿐(미확인)"
+      ],
+      "apk_checks": [
+        "'smart_select'·'Selected' 문자열",
+        "androidx.paging, androidx.room",
+        "api.chatbooks.com curate·recommend 경로"
+      ]
+    },
+    {
+      "rank": 6,
+      "name": "사진 장수와 페이지 수 분리",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "Smart Collage Time/Price 모드, 미리보기·Smart만 Undo (알고리즘 비공개)",
+          "source": "https://help.chatbooks.com/en/articles/18324177-how-do-i-fit-my-classic-book-yearbook-travel-book-or-layflat-into-fewer-pages"
+        },
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "페이지 구간제 가격(Classic 20–60/61–120/121–366쪽)",
+          "source": "https://help.chatbooks.com/en/articles/15840141-how-are-classic-book-yearbook-travel-book-and-luxury-layflat-prices-determined"
+        }
+      ],
+      "stack": [
+        "Kotlin DP",
+        "Room",
+        "DataStore",
+        "Remote Config",
+        "Compose FilterChip",
+        "Coil"
+      ],
+      "steps": [
+        "서버에서 페이지 구간 가격표 받아 캐시",
+        "순서 보존 분할 DP: 페이지 ≤ 구간 상한 (추론)",
+        "도달 불가 구간은 가격 칩 비활성화",
+        "미리보기는 ViewModel 초안, Apply 시 트랜잭션",
+        "Undo는 origin=SMART 페이지만 낱장 복원"
+      ],
+      "where": "온디바이스 (가격표만 서버 설정)",
+      "data": [
+        "page(page_id, origin USER/SMART, batch_id)",
+        "page_slot(page_id, slot_idx, photo_id)",
+        "price_tier(country, min_pg, max_pg, price)"
+      ],
+      "watch": [
+        "DP O(n·P·5), 수십~수백 ms (추론)",
+        "Exif I/O는 사진 추가 시점에 증분 저장",
+        "사용자 콜라주·텍스트 페이지는 고정"
+      ],
+      "apk_checks": [
+        "'Smart Collage'·'Undo all Smart Collages'",
+        "smart_collage·price_ranges 엔드포인트",
+        "Remote Config 기능 플래그",
+        "RN(libhermes.so)/Flutter 여부"
+      ]
+    },
+    {
+      "rank": 7,
+      "name": "제외함·보류함과 복구",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "책별 Excluded 목록, 인쇄 전 복구, 여기서 지우면 영구 삭제",
+          "source": "https://help.chatbooks.com/en/articles/7862604-how-do-i-exclude-remove-photos-ios"
+        },
+        {
+          "app": "Slidebox",
+          "app_ref": "Slidebox - Photo Cleaner",
+          "what": "휴지통 soft-delete, 비울 때 실제 삭제",
+          "source": "https://thenextweb.com/news/slidebox-lets-you-tap-and-swipe-your-way-to-iphone-photo-management"
+        },
+        {
+          "app": "사진쏙",
+          "app_ref": "사진쏙 - 중복·유사 사진 정리",
+          "what": "기기 휴지통 30일 복구, 되돌리기 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.snappick.app&hl=ko&gl=KR"
+        },
+        {
+          "app": "PhotoKip",
+          "app_ref": "PhotoKip 포토킵",
+          "what": "'미분류함' 보류 상태, 기기에 로컬 저장 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6779031842"
+        }
+      ],
+      "stack": [
+        "Room",
+        "Paging 3",
+        "Compose SnackbarHost",
+        "DataStore",
+        "WorkManager",
+        "MediaStore.createTrashRequest"
+      ],
+      "steps": [
+        "상태 enum INCLUDED/EXCLUDED/HOLD 저장",
+        "일괄 변경은 batch_id로 action_log 기록",
+        "Snackbar '되돌리기'로 마지막 batch 역적용",
+        "제외함·보류함 탭, 복구 시 INCLUDED",
+        "주문 시 EXCLUDED 잠금, 보류 남으면 알림"
+      ],
+      "where": "로컬 우선 + 서버 상태 동기화",
+      "data": [
+        "selection_state(photo_id, state, reason, ver)",
+        "action_log(batch_id, photo_ids, from, to, ts)"
+      ],
+      "watch": [
+        "원본 미수정, 기기 삭제는 createTrashRequest만",
+        "Android 16 타깃 시 요청당 URI 2,000개",
+        "action_log는 최근 N개로 정리 (추론)"
+      ],
+      "apk_checks": [
+        "'createTrashRequest'·'IS_TRASHED'",
+        "'Excluded'·'미분류함' 문자열",
+        "MANAGE_MEDIA 권한",
+        "androidx.room 스키마"
+      ]
+    },
+    {
+      "rank": 8,
+      "name": "월별 진행률과 이어하기",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Sponge",
+          "app_ref": "Sponge - Gallery Cleaner",
+          "what": "진행 상태 기억, 월별 처리 현황 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6738958624"
+        },
+        {
+          "app": "Favvy",
+          "app_ref": "Favvy: Clean your photos",
+          "what": "멈춘 곳부터 재개, 같은 사진 재검토 없음 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.kaikulabs.onlyfavs&hl=en"
+        },
+        {
+          "app": "PhotoKip",
+          "app_ref": "PhotoKip 포토킵",
+          "what": "앨범별 전체·옮김·건너뜀 개수 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6779031842"
+        },
+        {
+          "app": "Slidebox",
+          "app_ref": "Slidebox - Photo Cleaner",
+          "what": "월별 개수 표시 제거 후 3.58.0에서 복원",
+          "source": "https://apps.apple.com/us/app/id984305203"
+        }
+      ],
+      "stack": [
+        "MediaStore GENERATION",
+        "Room GROUP BY",
+        "Flow",
+        "Paging 3",
+        "DataStore",
+        "Compose ProgressIndicator"
+      ],
+      "steps": [
+        "색인 때 'YYYY-MM' 키 계산·인덱스",
+        "넘길 때마다 photo_decision UPSERT",
+        "월별 GROUP BY를 Flow로 진행률 표시",
+        "재개는 첫 UNREVIEWED 항목 질의로",
+        "generation 비교로 새 사진·삭제 반영"
+      ],
+      "where": "온디바이스 (동기화는 상태만)",
+      "data": [
+        "media_index(media_id, year_month, generation)",
+        "photo_decision(media_id, state, decided_at)"
+      ],
+      "watch": [
+        "부분 접근 시 분모 축소→UI에 명시",
+        "집계 Flow는 월 단위·디바운스",
+        "상태 유실·회귀 버그 사례(Favvy·Slidebox)"
+      ],
+      "apk_checks": [
+        "'generation_added'·'%Y-%m' 쿼리",
+        "Room/DataStore/MMKV 흔적",
+        "Flutter/RN 여부",
+        "SystemJobService"
+      ]
+    },
+    {
+      "rank": 9,
+      "name": "연중 미리 고르기",
+      "level": "일부 확인",
+      "confirmed": [
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "매월 전월 사진 23장 포토북 제안, 서버 일일 배치",
+          "source": "https://gihyo.jp/article/2023/09/mitene-09-photobook"
+        },
+        {
+          "app": "みてね",
+          "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
+          "what": "매월 11장 프린트 제안, LightGBM 시험 후 룰 복귀",
+          "source": "https://gihyo.jp/article/2025/09/mitene-12-printphoto"
+        },
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "월간 책 사진을 'copy to'로 Yearbook에 복사",
+          "source": "https://chatbooks.com/blog/how-to-turn-monthbooks-and-monthly-minis-into-a-yearbook"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "아이별 이번 달·지난달 베스트, 기기 내 분석 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=ai.zzazan.app&hl=ko"
+        },
+        {
+          "app": "BestCut",
+          "app_ref": "BestCut: AI Photo Selection",
+          "what": "좋아요를 갤러리 즐겨찾기로 등록 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.basicworld.BestCut&hl=ko"
+        }
+      ],
+      "stack": [
+        "WorkManager",
+        "MediaStore IS_FAVORITE",
+        "createFavoriteRequest",
+        "Room",
+        "POST_NOTIFICATIONS"
+      ],
+      "steps": [
+        "일일 작업이 generation으로 증분 스캔",
+        "매월 1일 MonthlyPick(AUTO) 생성·알림",
+        "검토 결과 KEPT/SWAPPED/REMOVED 저장",
+        "연말 후보 = 월별 KEPT + 즐겨찾기",
+        "월별 쪽수 배분에 맞춰 재선정"
+      ],
+      "where": "온디바이스 (결과 ID·상태만 서버 백업)",
+      "data": [
+        "monthly_pick(ym, photo_id, source, state)"
+      ],
+      "watch": [
+        "PeriodicWork 최소 15분, 월 실행은 날짜 체크",
+        "즐겨찾기는 읽기 권한 앱 모두 조회 가능",
+        "Android 13+ 알림 런타임 권한 필요"
+      ],
+      "apk_checks": [
+        "createFavoriteRequest·'is_favorite'",
+        "POST_NOTIFICATIONS 권한",
+        "Room 'monthly'·'best' 테이블",
+        "FirebaseMessagingService(us.mitene)"
+      ]
+    },
+    {
+      "rank": 10,
+      "name": "월·이벤트 챕터로 묶어 넘기기",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "업로드 후 이벤트 단위로 묶음 (자사 설명)",
+          "source": "https://apps.apple.com/kr/app/id6758901120"
+        },
+        {
+          "app": "PastBook",
+          "app_ref": "PastBook: 1-Click Photo Book",
+          "what": "Smart-group, 주문 전까지 사진은 기기에 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.pastbook.app&hl=ko&gl=KR"
+        },
+        {
+          "app": "Mixbook",
+          "app_ref": "Mixbook (Memories)",
+          "what": "위치 데이터로 언제·어디 맥락 파악 (자사 설명)",
+          "source": "https://www.mixbook.com/inspiration/mixbook-memories"
+        },
+        {
+          "app": "짜잔",
+          "app_ref": "짜잔 ZzaZan",
+          "what": "생일 기준 생후 일수·백일·돌 태그 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=ai.zzazan.app&hl=ko&gl=KR"
+        }
+      ],
+      "stack": [
+        "MediaStore DATE_TAKEN",
+        "ExifInterface",
+        "java.time YearMonth",
+        "Geocoder",
+        "Room",
+        "Compose stickyHeader"
+      ],
+      "steps": [
+        "현지 시각 기준 YearMonth로 월 챕터",
+        "30분 미만 같은 이벤트, 3시간 초과 분리",
+        "중간 구간은 GPS 거리로 판정 (추론)",
+        "생일 마일스톤 이벤트 규칙 우선",
+        "Geocoder 장소명, 사용자 분할·병합 보존"
+      ],
+      "where": "온디바이스 (장소명만 Geocoder)",
+      "data": [
+        "event(id, ym, start, end, title, edited)",
+        "event_photo(event_id, photo_id)"
+      ],
+      "watch": [
+        "GPS는 ACCESS_MEDIA_LOCATION+setRequireOriginal",
+        "Geocoder 미구현 기기 있음, 이벤트당 1회 캐시",
+        "시간대 미기록·메신저 사진 EXIF 손실"
+      ],
+      "apk_checks": [
+        "'OffsetTimeOriginal' 문자열",
+        "Geocoder.getFromLocation 호출",
+        "1800000·10800000 상수",
+        "ACCESS_MEDIA_LOCATION 권한"
+      ]
+    },
+    {
+      "rank": 11,
+      "name": "편집기에서 선택기로 복귀·교체 후보",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Chatbooks",
+          "app_ref": "Chatbooks (Smart Select)",
+          "what": "책 날짜 범위를 선택기 필터로 전달, 해제 가능",
+          "source": "https://help.chatbooks.com/en/articles/7885251-how-can-i-add-photos-from-a-different-month-to-my-monthbook"
+        },
+        {
+          "app": "Motif",
+          "app_ref": "Motif: Print your memories",
+          "what": "레이아웃 유지 Replace, 기기 내 얼굴 인식 (릴리스 노트)",
+          "source": "https://apps.apple.com/kr/app/id1466595615"
+        },
+        {
+          "app": "PastBook",
+          "app_ref": "PastBook: 1-Click Photo Book",
+          "what": "Replace 시 Suggestions 트레이 (후보 기준 비공개)",
+          "source": "https://help.pastbook.com/hc/en-us/articles/11100902507418-How-to-replace-a-photo-in-your-book"
+        }
+      ],
+      "stack": [
+        "Navigation Compose",
+        "Room",
+        "Paging 3",
+        "ModalBottomSheet",
+        "Compose dragAndDrop",
+        "LiteRT 임베딩"
+      ],
+      "steps": [
+        "책 생성 시 SelectionFilter를 Room에 저장",
+        "'+'·'교체' 시 같은 필터로 선택기 재진입",
+        "후보: 탈락·같은 이벤트·유사도 순 (추론)",
+        "photoId만 교체, 레이아웃·슬롯 유지",
+        "얼굴 박스로 크롭 재계산, Undo 스택"
+      ],
+      "where": "온디바이스 (배치 결과만 동기화)",
+      "data": [
+        "selection_filter(book_id, filter_json)",
+        "slot_assignment(slot_id, photo_id, crop_rect)"
+      ],
+      "watch": [
+        "Photo Picker는 사전 필터 불가→커스텀 그리드",
+        "1만 장×1024 float 임베딩 약 40MB",
+        "저해상도 사진 교체 시 경고"
+      ],
+      "apk_checks": [
+        "'Apply Filters'·'Change Image' 문자열",
+        "/suggestions 엔드포인트",
+        "compose.foundation.draganddrop",
+        "WebView 편집기 여부(스냅스)"
+      ]
+    },
+    {
+      "rank": 12,
+      "name": "얼굴·방향·중요도 정보 전달",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Motif",
+          "app_ref": "Motif: Print your memories",
+          "what": "얼굴 감지로 배치 조정, 방향 기준 autoflow (자사 설명)",
+          "source": "https://mimeophotos.com/pages/motif-for-iphone-and-ipad"
+        },
+        {
+          "app": "쑥쑥찰칵",
+          "app_ref": "쑥쑥찰칵 (Babyfolio)",
+          "what": "달력에 얼굴 잘 보이게 자동 배치 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.jejememe.daybabyday&hl=ko&gl=KR"
+        },
+        {
+          "app": "Mixbook",
+          "app_ref": "Mixbook (Memories)",
+          "what": "Apple 온디바이스 AI로 점수화+LLM 분석 (자사 설명)",
+          "source": "https://thedeadpixelssociety.com/mixbook-launches-story-mode-turning-a-few-words-into-a-finished-photo-book/"
+        }
+      ],
+      "stack": [
+        "ML Kit Face Detection",
+        "ExifInterface",
+        "ML Kit Subject Segmentation",
+        "Room",
+        "WorkManager",
+        "Coil"
+      ],
+      "steps": [
+        "EXIF Orientation 보정 후 방향 클래스 판정",
+        "1024px 다운샘플로 얼굴 박스·미소 계산",
+        "얼굴 없으면 피사체 분할·중앙으로 폴백",
+        "중요도 가중합→큰 슬롯 배정, crop rect 계산",
+        "사용자 조정값 분리 저장, 서버엔 좌표만"
+      ],
+      "where": "기기 계산, 좌표만 서버 렌더러로",
+      "data": [
+        "photo_analysis(photo_id, faces, orient, imp)",
+        "slot_crop(slot_id, auto_rect, user_rect)"
+      ],
+      "watch": [
+        "ML Kit는 반려동물·작은 얼굴을 놓침",
+        "번들 6.9MB vs 언번들 800KB(GMS 필요)",
+        "수동 크롭 조정 UI 필수"
+      ],
+      "apk_checks": [
+        "mlkit.vision.face, segmentation.subject",
+        "DEPENDENCIES=face 메타데이터",
+        "libface_detector_v2_jni.so",
+        "응답 JSON의 crop·face 필드"
+      ]
+    },
+    {
+      "rank": 13,
+      "name": "스와이프 판정 모드",
+      "level": "공개 근거 없음",
+      "confirmed": [
+        {
+          "app": "Slidebox",
+          "app_ref": "Slidebox - Photo Cleaner",
+          "what": "위로 스와이프=앱 내 휴지통, 비울 때 실제 삭제",
+          "source": "https://techcrunch.com/2016/04/11/slidebox-brings-its-tinder-like-photo-management-app-to-android"
+        },
+        {
+          "app": "Favvy",
+          "app_ref": "Favvy: Clean your photos",
+          "what": "Kotlin·Glide 사용 (SDK 스캔 기반 추론)",
+          "source": "https://appgoblin.info/apps/com.kaikulabs.onlyfavs"
+        },
+        {
+          "app": "Sponge",
+          "app_ref": "Sponge - Gallery Cleaner",
+          "what": "이어하기·월별 진행, 업로드 없음 (자사 설명)",
+          "source": "https://play.google.com/store/apps/details?id=com.prismtree.sponge&hl=ko"
+        }
+      ],
+      "stack": [
+        "Compose anchoredDraggable",
+        "draggable2D",
+        "Coil",
+        "Room",
+        "DataStore",
+        "HapticFeedback"
+      ],
+      "steps": [
+        "미판정 항목만 Room 조인해 카드 큐 공급",
+        "카드 2~3장 겹쳐 표시, 다음 장 미리 로드",
+        "거리·속도 임계로 좌=빼기/우=넣기/위=보류",
+        "decision upsert+undo 스택, 버튼 대체 제공",
+        "종료 시 넣기→선택 목록, 보류→보류함"
+      ],
+      "where": "온디바이스 (판정만 선택적 동기화)",
+      "data": [
+        "decision(media_id, decision, at, session_id)"
+      ],
+      "watch": [
+        "원본 디코딩은 OOM→화면 크기로 다운샘플",
+        "Material Swipeable는 deprecated",
+        "되돌리기 사용률을 오조작 지표로"
+      ],
+      "apk_checks": [
+        "AnchoredDraggableState, CardStackView",
+        "com.bumptech.glide / coil",
+        "createTrashRequest 호출",
+        "com.airbnb.lottie"
+      ]
+    },
+    {
+      "rank": 14,
+      "name": "자연어·파라미터로 재선별",
+      "level": "확인됨",
+      "confirmed": [
+        {
+          "app": "LifeCache",
+          "app_ref": "LifeCache: Automated Yearbooks",
+          "what": "Gemini·Claude API로 점수·캡션·레이아웃·책 문구 생성",
+          "source": "https://lifecache.ai/privacy"
+        },
+        {
+          "app": "Motif",
+          "app_ref": "Motif: Print your memories",
+          "what": "MCP 서버(OAuth·PKCE)로 프로젝트 편집 도구 노출",
+          "source": "https://create.mimeophotos.com/.well-known/oauth-authorization-server"
+        },
+        {
+          "app": "Motif",
+          "app_ref": "Motif: Print your memories",
+          "what": "얼굴 인식은 기기, 큐레이션은 업로드 후 서버",
+          "source": "https://apps.apple.com/kr/app/id1466595615"
+        }
+      ],
+      "stack": [
+        "Firebase AI Logic",
+        "ML Kit GenAI Prompt API",
+        "ML Kit Face Detection",
+        "MobileCLIP (선택)",
+        "Room",
+        "WorkManager"
+      ],
+      "steps": [
+        "특징값 사전 계산(얼굴·인물 ID·품질·임베딩)",
+        "SelectionParams 정의, 버전별 Room 저장",
+        "텍스트만 LLM function calling→파라미터",
+        "기기에서 재순위: 가중치·제약·쿼터·MMR",
+        "변경 diff 표시, 칩·슬라이더와 양방향 동기화"
+      ],
+      "where": "의도 파싱만 서버 LLM, 재순위는 기기",
+      "data": [
+        "selection_params(ver, target_n, weights)",
+        "photo_features(photo_id, person_ids, emb)"
+      ],
+      "watch": [
+        "Firebase AI Logic App Check 강제(2026-11-02~)",
+        "Gemini Nano는 일부 기종·베타",
+        "MobileCLIP 라이선스·용량 확인"
+      ],
+      "apk_checks": [
+        "com.google.firebase.ai",
+        "com.google.mlkit.genai.prompt",
+        "generativelanguage.googleapis.com, api.anthropic.com",
+        "*.task / *.litertlm 모델 파일"
+      ]
+    }
+  ]
+}
