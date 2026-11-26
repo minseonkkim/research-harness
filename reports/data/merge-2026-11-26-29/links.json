@@ -1,0 +1,106 @@
+{
+  "Bebememo (베베메모)": {
+    "play": "com.liveyap.timehut.bbmemo",
+    "ios": "1494276528"
+  },
+  "쑥쑥찰칵 (Babyfolio)": {
+    "play": "com.jejememe.daybabyday",
+    "ios": "1509183009"
+  },
+  "FamilyAlbum (みてね, 패밀리 앨범)": {
+    "play": "us.mitene",
+    "ios": "935672069"
+  },
+  "TimeHut - Baby Album": {
+    "play": "com.liveyap.timehut",
+    "ios": "565951606"
+  },
+  "Tinybeans Private Family Album": {
+    "play": "com.tinybeans",
+    "ios": "521633042"
+  },
+  "Google 포토 (Google Photos)": {
+    "play": "com.google.android.apps.photos",
+    "ios": "962194608"
+  },
+  "삼성 갤러리 (Samsung Gallery)": {
+    "galaxy": "com.sec.android.gallery3d"
+  },
+  "Slidebox - Photo Cleaner": {
+    "play": "co.slidebox",
+    "ios": "984305203"
+  },
+  "짜잔 ZzaZan": {
+    "play": "ai.zzazan.app",
+    "ios": "6799102499",
+    "web": "https://zzazan.ai"
+  },
+  "PhotoKip 포토킵": {
+    "play": "com.memvault",
+    "ios": "6779031842"
+  },
+  "BestCut: AI Photo Selection": {
+    "play": "com.basicworld.BestCut"
+  },
+  "사진쏙 - 중복·유사 사진 정리": {
+    "play": "com.snappick.app"
+  },
+  "베스트컷 - 중복사진 정리 & 갤러리 용량 확보": {
+    "play": "com.poty0808.photo_compare"
+  },
+  "사진정리 한방 - 중복 사진·동영상 한번에 삭제": {
+    "play": "kr.photo.hanbang"
+  },
+  "키즈로그 - 사진분류, 알림장, 보육일지": {
+    "play": "com.hunjun.kidslog",
+    "ios": "6778382653"
+  },
+  "Sponge - Gallery Cleaner": {
+    "play": "com.prismtree.sponge",
+    "ios": "6738958624"
+  },
+  "Favvy: Clean your photos": {
+    "play": "com.kaikulabs.onlyfavs",
+    "ios": "6743979781"
+  },
+  "스냅스 SNAPS": {
+    "play": "com.snaps.mobile.kr",
+    "ios": "692816867"
+  },
+  "Chatbooks (Smart Select)": {
+    "play": "com.chatbooks",
+    "ios": "734887606"
+  },
+  "PastBook: 1-Click Photo Book": {
+    "play": "com.pastbook.app",
+    "ios": "1524251801"
+  },
+  "네이버 MYBOX": {
+    "play": "com.nhn.android.ndrive",
+    "ios": "585173084"
+  },
+  "Tangible: AI Photo Book Maker": {
+    "play": "pics.tangible.mobile"
+  },
+  "Aura Frames": {
+    "play": "com.pushd.client"
+  },
+  "Journi Print - 포토북": {
+    "play": "com.journiapp.book"
+  },
+  "Polarsteps - Travel Tracker": {
+    "play": "com.polarsteps"
+  },
+  "GoPro Quik": {
+    "play": "com.gopro.smarty"
+  },
+  "PicDock - 사진 슬라이드쇼 · 디지털 액자": {
+    "play": "kr.devdad.picdock"
+  },
+  "Magisto 동영상 편집기 및 슬라이드쇼 메이커": {
+    "play": "com.magisto"
+  },
+  "키즈노트 (키즈노트북)": {
+    "play": "com.vaultmicro.kidsnote"
+  }
+}
