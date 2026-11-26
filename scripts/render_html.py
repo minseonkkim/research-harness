@@ -46,6 +46,8 @@ rows, unverified = data["rows"], data["unverified"]
 sections = {s["key"]: s["markdown"] for s in load("sections.json", [])}
 profiles = {p["name"]: p for p in load("profiles.json")}
 FEATURES = load("features.json", [])
+# 앱 카드의 '조사 원문'에 보여 줄 필드. 관점과 무관한 가격·규모·개인정보·일반 불만은 뺀다.
+RAW_FIELDS = {"lens_features", "ai"}
 TECH = json.loads(Path(a.tech).read_text(encoding="utf-8")) if a.tech else None
 G = load("groups.json", {"order": [], "groups": {}, "badges": {}})
 LINKS = load("links.json", {})
@@ -132,13 +134,16 @@ for g in order:
     for r in items:
         p = profiles.get(r["name"], {})
         badge = G.get("badges", {}).get(r["name"])
+        # 관점(사진 정리)과 무관한 개발사·규모·가격은 보여 주지 않는다. 분석 처리 방식만 남긴다.
         info = "".join(f"<div><dt>{k}</dt><dd>{inline(p.get(f, '') or '–')}</dd></div>"
-                       for k, f in [("개발사", "developer"), ("규모", "scale"), ("가격", "price"), ("AI 처리", "ai")])
+                       for k, f in [("정리 분석 처리 방식", "ai")])
         feats = "".join(f"<li>{inline(x)}</li>" for x in p.get("selection_features", []))
         take = "".join(f"<li>{inline(x)}</li>" for x in p.get("takeaways", []))
         cons = "".join(f"<li>{inline(x)}</li>" for x in p.get("cons", []))
         raw = []
         for f in T["fields"]:
+            if f["key"] not in RAW_FIELDS:
+                continue
             v = r["fields"].get(f["key"])
             if not v:
                 continue
@@ -152,15 +157,15 @@ for g in order:
             + f'</div><h3>{esc(r["name"])}</h3><p class="one">{inline(p.get("one_liner", ""))}</p></header>'
             + store_buttons(r["name"])
             + f'<dl class="info">{info}</dl>'
-            + (f'<h4>사진 선택 관련 기능</h4><ul class="feats">{feats}</ul>' if feats else "")
+            + (f'<h4>사진 정리 기능</h4><ul class="feats">{feats}</ul>' if feats else "")
             + (f'<div class="take"><h4>이어북에 참고할 점</h4><ul>{take}</ul></div>' if take else "")
-            + (f'<h4>아쉬운 점</h4><ul class="cons">{cons}</ul>' if cons else "")
+            + (f'<h4>정리 기능의 한계</h4><ul class="cons">{cons}</ul>' if cons else "")
             + (f'<p class="caution">⚠ {inline(p["caution"])}</p>' if p.get("caution") else "")
-            + f'<details class="raw"><summary>조사 원문과 출처</summary><dl>{"".join(raw)}</dl></details>'
+            + f'<details class="raw"><summary>정리 기능 조사 원문과 출처</summary><dl>{"".join(raw)}</dl></details>'
             "</article>")
     cards.append(f'<div class="grp-block" data-group="{esc(g)}"><h3 class="gh">{esc(g)} <span class="count">{len(items)}</span></h3>'
                  f'<div class="apps">{"".join(cs)}</div></div>')
-section("apps", "1. 앱별 설명", "".join(cards), '<p class="lead">설치 링크 · 기본 정보 · 사진 선택 관련 기능 · 참고할 점 순서. 원문과 출처는 카드 아래 펼치기.</p>')
+section("apps", "1. 앱별 설명", "".join(cards), '<p class="lead">앨범 정리 기능만 다룬다. 설치 링크 · 사진 정리 기능 · 이어북에 참고할 점 · 정리 기능의 한계 순서. 원문과 출처는 카드 아래 펼치기.</p>')
 
 # 2. 이어북 추천 기능 (추천순)
 TIER = {"필수": "t1", "추천": "t2", "고려": "t3"}
