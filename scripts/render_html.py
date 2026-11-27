@@ -295,7 +295,8 @@ if GUIDE:
                  + f'<div class="tiles">{tiles}</div></div>')
     glossary = "".join(f'<div><dt>{esc(x["term"])}</dt><dd>{inline(x["plain"])}</dd></div>' for x in GUIDE.get("glossary", []))
     intro = (
-        f'<div class="intro"><p class="purpose">{inline(GUIDE.get("purpose", ""))}</p>'
+        '<div class="intro">'
+        + (f'<p class="purpose">{inline(GUIDE["purpose"])}</p>' if GUIDE.get("purpose") else "")
         + (f'<p class="question"><span>핵심 질문</span>{inline(GUIDE["question"])}</p>' if GUIDE.get("question") else "")
         + '<div class="igrid"><div><h3>먼저 알면 좋은 결론</h3><ol class="kt">'
         + "".join(f"<li>{inline(x)}</li>" for x in GUIDE.get("key_takeaways", [])) + "</ol></div>"
