@@ -46,6 +46,8 @@ rows, unverified = data["rows"], data["unverified"]
 sections = {s["key"]: s["markdown"] for s in load("sections.json", [])}
 profiles = {p["name"]: p for p in load("profiles.json")}
 FEATURES = load("features.json", [])
+MEDIA = load("media.json", {})      # {앱이름: {icon, shots[]}} — scripts/fetch_store_media.py
+GUIDE = load("guide.json", None)    # 처음 읽는 사람을 위한 안내·용어집
 # 앱 카드의 '조사 원문'에 보여 줄 필드. 관점과 무관한 가격·규모·개인정보·일반 불만은 뺀다.
 RAW_FIELDS = {"lens_features", "ai"}
 TECH = json.loads(Path(a.tech).read_text(encoding="utf-8")) if a.tech else None
@@ -163,11 +165,19 @@ for g in order:
             srcs = " ".join(f'<a href="{esc(u)}" target="_blank" rel="noopener">[{i + 1}]</a>'
                             for i, u in enumerate((v.get("sources") or [])[:6]))
             raw.append(f"<dt>{esc(f['label'])}</dt><dd>{esc(v.get('value', ''))} <span class='srcs'>{srcs}</span></dd>")
+        md_ = MEDIA.get(r["name"], {})
+        icon = (f'<img class="appicon" src="{esc(md_["icon"])}=w96" alt="" loading="lazy" referrerpolicy="no-referrer">'
+                if md_.get("icon") else '<div class="appicon ph">' + esc(short_name(r["name"])[:1]) + "</div>")
+        shots = ("".join(f'<img src="{esc(u)}=h480" alt="{esc(short_name(r["name"]))} 스크린샷 {i + 1}" loading="lazy" referrerpolicy="no-referrer">'
+                         for i, u in enumerate(md_.get("shots", [])))
+                 if md_.get("shots") else "")
         cs.append(
             f'<article class="app" id="{aid(r["name"])}">'
-            f'<header><div class="tags"><span class="type">{esc(g)}</span>'
+            f'<header class="apphead">{icon}<div><div class="tags"><span class="type">{esc(g)}</span>'
             + (f'<span class="badge">{esc(badge)}</span>' if badge else "")
-            + f'</div><h3>{esc(r["name"])}</h3><p class="one">{inline(p.get("one_liner", ""))}</p></header>'
+            + f'</div><h3>{esc(r["name"])}</h3><p class="one">{inline(p.get("one_liner", ""))}</p></div></header>'
+            + (f'<p class="plain">{inline(p["plain"])}</p>' if p.get("plain") else "")
+            + (f'<div class="shots" aria-label="스토어 스크린샷">{shots}</div>' if shots else "")
             + store_buttons(r["name"])
             + f'<dl class="info">{info}</dl>'
             + flow_html
@@ -264,6 +274,45 @@ if TECH:
             '<p class="lead">공개 자료(기술 블로그·논문·특허·도움말·개인정보처리방침·릴리스 노트)로 확인한 구현과, Android에서 만들 때의 권장 구현. '
             '<span class="tier t1">확인됨</span> 앱이 쓴 기술이 공개 근거로 확인 · <span class="tier t2">일부 확인</span> · <span class="tier t3">공개 근거 없음</span> '
             + (f'APK 정적 분석: {len(APKS)}개 앱 ({", ".join(esc(x["app"]) for x in APKS)}).</p>' if APKS else '앱 APK 분석은 아직 하지 않았다.</p>'))
+
+# 0. 읽는 법 + 한눈에 보기 (맨 앞에 넣는다)
+if GUIDE:
+    types = {t["type"]: t["desc"] for t in GUIDE.get("app_types", [])}
+    grid = ""
+    for g in order:
+        items = [r for r in rows if group_of(r["name"]) == g]
+        if not items:
+            continue
+        tiles = ""
+        for r in items:
+            md_ = MEDIA.get(r["name"], {})
+            ic = (f'<img src="{esc(md_["icon"])}=w80" alt="" loading="lazy" referrerpolicy="no-referrer">' if md_.get("icon")
+                  else f'<span class="ph">{esc(short_name(r["name"])[:1])}</span>')
+            tiles += (f'<a class="tile" href="#{aid(r["name"])}">{ic}<span><strong>{esc(short_name(r["name"]))}</strong>'
+                      f'<small>{inline(profiles.get(r["name"], {}).get("one_liner", ""))}</small></span></a>')
+        grid += (f'<div class="tgroup"><h4>{esc(g)} <span class="count">{len(items)}</span></h4>'
+                 + (f'<p class="tdesc">{inline(types[g])}</p>' if types.get(g) else "")
+                 + f'<div class="tiles">{tiles}</div></div>')
+    glossary = "".join(f'<div><dt>{esc(x["term"])}</dt><dd>{inline(x["plain"])}</dd></div>' for x in GUIDE.get("glossary", []))
+    intro = (
+        f'<div class="intro"><p class="purpose">{inline(GUIDE.get("purpose", ""))}</p>'
+        + (f'<p class="question"><span>핵심 질문</span>{inline(GUIDE["question"])}</p>' if GUIDE.get("question") else "")
+        + '<div class="igrid"><div><h3>먼저 알면 좋은 결론</h3><ol class="kt">'
+        + "".join(f"<li>{inline(x)}</li>" for x in GUIDE.get("key_takeaways", [])) + "</ol></div>"
+        + '<div><h3>문서 구성</h3><ol class="parts">'
+        + "".join(f'<li><a href="#{["apps", "features", "tech"][i] if i < 3 else "apps"}"><strong>{esc(x["title"])}</strong></a><p>{inline(x["desc"])}</p></li>'
+                  for i, x in enumerate(GUIDE.get("parts", [])))
+        + "</ol></div></div>"
+        + '<div class="legend2"><h3>표시 읽는 법</h3><ul>'
+        '<li><span class="actor a-auto">자동</span> 앱이 알아서 처리 · <span class="actor a-mix">자동+확인</span> 앱이 제안하고 사람이 확인 · <span class="actor a-user">사용자</span> 사람이 직접</li>'
+        '<li><span class="tier t1">필수</span> <span class="tier t2">추천</span> <span class="tier t3">고려</span> 이어북에 넣을 우선순위</li>'
+        '<li><span class="tag unk">미확인</span> 공개 자료로 확인 못 함 · <span class="tag inf">추론</span> 자료를 바탕으로 한 판단 · (APK) 앱 파일을 직접 분석해 확인</li>'
+        "</ul></div>"
+        f'<h3 class="ov">한눈에 보기: 조사한 앱 {len(rows)}개</h3><p class="lead">아이콘을 누르면 앱 설명으로 이동한다.</p>{grid}'
+        + (f'<details class="gloss"><summary>용어 풀이 ({len(GUIDE.get("glossary", []))}개)</summary><dl>{glossary}</dl></details>' if glossary else "")
+        + "</div>")
+    parts.insert(0, f'<section id="intro"><h2>이 문서 읽는 법</h2>{intro}</section>')
+    nav.insert(0, ("intro", "읽는 법"))
 
 navhtml = "".join(f'<a href="#{i}">{esc(t)}</a>' for i, t in nav)
 meta = (f"<span>기준일 {esc(a.date)}</span><span>앱 {len(rows)}개</span>"
@@ -370,6 +419,28 @@ details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padd
 .a-auto{background:var(--asoft);color:var(--accent)}.a-user{background:var(--soft);color:var(--muted)}.a-mix{background:var(--evs);color:var(--ev)}
 .fbasis{font-size:12.5px;color:var(--muted);margin:2px 0 0}
 .chiplist{list-style:none;padding:0!important;display:flex;flex-wrap:wrap;gap:5px}.chiplist li{margin:0!important;font-size:13px;background:var(--soft);border-radius:6px;padding:2px 8px}
+.apphead{display:flex;gap:12px;align-items:flex-start}.apphead h3{margin-top:4px}
+.appicon{flex:none;width:52px;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--bg);object-fit:cover}
+.appicon.ph,.tile .ph{display:grid;place-items:center;font-weight:700;color:var(--muted);font-size:20px}
+.plain{margin:12px 0 0;font-size:15px;line-height:1.6;background:var(--bg);border-radius:10px;padding:10px 12px}
+.shots{display:flex;gap:8px;overflow-x:auto;margin:12px 0 2px;padding-bottom:6px;scroll-snap-type:x mandatory}
+.shots img{flex:none;height:220px;width:auto;border-radius:10px;border:1px solid var(--line);scroll-snap-align:start;background:var(--soft)}
+.intro .purpose{font-size:16.5px;line-height:1.7;margin:0 0 10px}
+.question{background:var(--asoft);border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:600}
+.question span{display:inline-block;font-size:12px;color:var(--accent);margin-right:8px;font-weight:700}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.igrid>div,.legend2{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.intro h3{font-size:16px;margin:0 0 8px}.kt,.parts{margin:0;padding-left:20px;font-size:14.5px}.kt li,.parts li{margin:5px 0}.parts p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.legend2{margin-top:14px}.legend2 ul{margin:0;padding-left:18px;font-size:14px}.legend2 li{margin:6px 0}
+.ov{font-size:18px!important;margin:26px 0 4px!important}
+.tgroup{margin:14px 0}.tgroup h4{font-size:14.5px;margin:0 0 2px}.tdesc{margin:0 0 8px;font-size:13.5px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.tile{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;color:var(--ink)}
+.tile:hover{border-color:var(--accent);text-decoration:none}.tile img,.tile .ph{flex:none;width:40px;height:40px;border-radius:9px;border:1px solid var(--line)}
+.tile span{display:flex;flex-direction:column;min-width:0}.tile strong{font-size:14px}.tile small{font-size:12px;color:var(--muted);line-height:1.4}
+.gloss{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-top:16px}.gloss summary{padding:12px 16px;cursor:pointer;font-weight:600}
+.gloss dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 18px;padding:0 18px 16px;margin:0}
+.gloss dt{font-weight:700;font-size:14px}.gloss dd{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+@media (max-width:860px){.igrid{grid-template-columns:1fr}.shots img{height:180px}}
 .muted{color:var(--muted);font-size:13px}
 .theme{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
 footer{color:var(--muted);font-size:13px;text-align:center}
