@@ -1,0 +1,24 @@
+{
+  "app": "Tangible",
+  "app_ref": "Tangible: AI Photo Book Maker",
+  "package": "pics.tangible.mobile",
+  "version": "1.1.27",
+  "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + xxhdpi)",
+  "signature": "APK v2/v3 서명, Google Play 앱 서명 인증서(CN=Android, Google Inc.) · SHA-256 581fec13…",
+  "method": "REA 6.10.1 + JADX 엔진 정적 분석과 React Native(Hermes) 번들의 식별자·문구 확인. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+  "findings": [
+    "React Native(Expo) 앱: 사진 선별 로직이 앱 안 자바스크립트 번들에 있음(기기 안 규칙 기반 처리)",
+    "월별 장수 배분 함수(allocateMonthlyQuota)와 세제곱근 계산(Math.cbrt)이 있어 블로그의 '월별 사진 수 세제곱근 배분'과 일치",
+    "집 위치 감지(detectHome)·여행 찾기(findingTrip, photosIntoTrips)·장면 간격 기준(sceneGapMs)·장면 수 식별자 존재 → 여행·장면 자동 분할을 기기에서 계산",
+    "즐겨찾기·올해 사진 불러오기, 미리 선택된 사진(preselected) 처리, '사진이 다른 달에 있음' 이동 안내, 'Your 2026' 연간 카드 문구",
+    "앱 안에 얼굴 인식·이미지 분석 모델·라이브러리가 없음 → 얼굴 기준 크롭과 레이아웃은 서버(api.tangible.pics)에서 처리",
+    "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+  ],
+  "features": [
+    3,
+    5,
+    4,
+    12,
+    10
+  ]
+}

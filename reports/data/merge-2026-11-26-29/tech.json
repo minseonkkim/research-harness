@@ -418,6 +418,11 @@
           "app": "스냅스",
           "app_ref": "스냅스 SNAPS",
           "what": "썸네일만 서버 분석 API로 보내고 결과를 기기 DB에 캐시, 큐레이션 필터로 선정"
+        },
+        {
+          "app": "Tangible",
+          "app_ref": "Tangible: AI Photo Book Maker",
+          "what": "월별 배분 함수 + 세제곱근 계산이 앱 번들에 있음(블로그 규칙과 일치, 기기 안)"
         }
       ]
     },
@@ -484,6 +489,11 @@
           "app": "FamilyAlbum",
           "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
           "what": "갤러리 추천 사진을 미리보기 화면에서 확인한 뒤 올리는 흐름"
+        },
+        {
+          "app": "Tangible",
+          "app_ref": "Tangible: AI Photo Book Maker",
+          "what": "미리 선택된 사진(preselected)을 검토 화면에 반영하는 처리"
         }
       ]
     },
@@ -560,6 +570,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "SigLIP2 + 사물 80종·의미 태그 29개로 상황 태그 부여"
+        },
+        {
+          "app": "Tangible",
+          "app_ref": "Tangible: AI Photo Book Maker",
+          "what": "집 위치 감지·여행 찾기·장면 간격 기준으로 여행·장면 분할을 기기에서 계산"
         }
       ]
     },
@@ -993,6 +1008,11 @@
           "app": "스냅스",
           "app_ref": "스냅스 SNAPS",
           "what": "책 구성 마지막 단계에서 얼굴 중앙 맞춤 작업 실행"
+        },
+        {
+          "app": "Tangible",
+          "app_ref": "Tangible: AI Photo Book Maker",
+          "what": "앱 안 얼굴 모델 없음 → 얼굴 기준 크롭·레이아웃은 서버 처리"
         }
       ]
     },
@@ -1149,6 +1169,11 @@
           "app": "스냅스",
           "app_ref": "스냅스 SNAPS",
           "what": "월간 구독에서 '이미 고른 사진 기록'으로 달마다 중복 선정 방지(추정)"
+        },
+        {
+          "app": "Tangible",
+          "app_ref": "Tangible: AI Photo Book Maker",
+          "what": "올해 사진·즐겨찾기 불러오기와 'Your 2026' 연간 카드"
         }
       ]
     },
@@ -1430,6 +1455,30 @@
         10,
         12,
         7
+      ]
+    },
+    {
+      "app": "Tangible",
+      "app_ref": "Tangible: AI Photo Book Maker",
+      "package": "pics.tangible.mobile",
+      "version": "1.1.27",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + xxhdpi)",
+      "signature": "APK v2/v3 서명, Google Play 앱 서명 인증서(CN=Android, Google Inc.) · SHA-256 581fec13…",
+      "method": "REA 6.10.1 + JADX 엔진 정적 분석과 React Native(Hermes) 번들의 식별자·문구 확인. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "React Native(Expo) 앱: 사진 선별 로직이 앱 안 자바스크립트 번들에 있음(기기 안 규칙 기반 처리)",
+        "월별 장수 배분 함수(allocateMonthlyQuota)와 세제곱근 계산(Math.cbrt)이 있어 블로그의 '월별 사진 수 세제곱근 배분'과 일치",
+        "집 위치 감지(detectHome)·여행 찾기(findingTrip, photosIntoTrips)·장면 간격 기준(sceneGapMs)·장면 수 식별자 존재 → 여행·장면 자동 분할을 기기에서 계산",
+        "즐겨찾기·올해 사진 불러오기, 미리 선택된 사진(preselected) 처리, '사진이 다른 달에 있음' 이동 안내, 'Your 2026' 연간 카드 문구",
+        "앱 안에 얼굴 인식·이미지 분석 모델·라이브러리가 없음 → 얼굴 기준 크롭과 레이아웃은 서버(api.tangible.pics)에서 처리",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+      ],
+      "features": [
+        3,
+        5,
+        4,
+        12,
+        10
       ]
     }
   ]
