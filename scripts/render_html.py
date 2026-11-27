@@ -299,10 +299,10 @@ if GUIDE:
         + (f'<p class="question"><span>핵심 질문</span>{inline(GUIDE["question"])}</p>' if GUIDE.get("question") else "")
         + '<div class="igrid"><div><h3>먼저 알면 좋은 결론</h3><ol class="kt">'
         + "".join(f"<li>{inline(x)}</li>" for x in GUIDE.get("key_takeaways", [])) + "</ol></div>"
-        + '<div><h3>문서 구성</h3><ol class="parts">'
+        + '<div><h3>문서 구성</h3><ul class="parts">'
         + "".join(f'<li><a href="#{["apps", "features", "tech"][i] if i < 3 else "apps"}"><strong>{esc(x["title"])}</strong></a><p>{inline(x["desc"])}</p></li>'
                   for i, x in enumerate(GUIDE.get("parts", [])))
-        + "</ol></div></div>"
+        + "</ul></div></div>"
         + '<div class="legend2"><h3>표시 읽는 법</h3><ul>'
         '<li><span class="actor a-auto">자동</span> 앱이 알아서 처리 · <span class="actor a-mix">자동+확인</span> 앱이 제안하고 사람이 확인 · <span class="actor a-user">사용자</span> 사람이 직접</li>'
         '<li><span class="tier t1">필수</span> <span class="tier t2">추천</span> <span class="tier t3">고려</span> 이어북에 넣을 우선순위</li>'
@@ -429,7 +429,7 @@ details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padd
 .question{background:var(--asoft);border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:600}
 .question span{display:inline-block;font-size:12px;color:var(--accent);margin-right:8px;font-weight:700}
 .igrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.igrid>div,.legend2{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
-.intro h3{font-size:16px;margin:0 0 8px}.kt,.parts{margin:0;padding-left:20px;font-size:14.5px}.kt li,.parts li{margin:5px 0}.parts p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.intro h3{font-size:16px;margin:0 0 8px}.kt{margin:0;padding-left:20px;font-size:14.5px}.parts{list-style:none;margin:0;padding-left:0;font-size:14.5px}.kt li,.parts li{margin:5px 0}.parts p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
 .legend2{margin-top:14px}.legend2 ul{margin:0;padding-left:18px;font-size:14px}.legend2 li{margin:6px 0}
 .ov{font-size:18px!important;margin:26px 0 4px!important}
 .tgroup{margin:14px 0}.tgroup h4{font-size:14.5px;margin:0 0 2px}.tdesc{margin:0 0 8px;font-size:13.5px;color:var(--muted)}
