@@ -229,6 +229,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "SigLIP2 임베딩 ↔ 9가지 비사진 원형(스크린샷·문서·밈 등) 유사도로 거름"
+        },
+        {
+          "app": "Aura",
+          "app_ref": "Aura Frames",
+          "what": "흐림 정도(blurriness) 항목과 기기 안 품질 분석으로 낮은 품질 판정"
         }
       ]
     },
@@ -332,6 +337,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "눈 감음·부정 표정·흐림·얼굴 잘림 감점, 점수 비슷하면 대안 컷 제시"
+        },
+        {
+          "app": "Aura",
+          "app_ref": "Aura Frames",
+          "what": "중복 묶음 id로 선택 화면에서 중복을 1장으로 접고 펼침, 흐림 정도·품질 분석은 기기 안"
         }
       ]
     },
@@ -494,6 +504,11 @@
           "app": "Tangible",
           "app_ref": "Tangible: AI Photo Book Maker",
           "what": "미리 선택된 사진(preselected)을 검토 화면에 반영하는 처리"
+        },
+        {
+          "app": "Aura",
+          "app_ref": "Aura Frames",
+          "what": "사진 추가 화면에 인물 검색 줄을 두고 추천은 강조만 하는 구성"
         }
       ]
     },
@@ -913,6 +928,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "연령대별 보정값으로 아이·어른 매칭 기준을 따로 맞춤"
+        },
+        {
+          "app": "Aura",
+          "app_ref": "Aura Frames",
+          "what": "ML Kit 얼굴 검출 + 자체 얼굴 특징값 모델, 기기 안 인물 검색 DB"
         }
       ]
     },
@@ -1174,6 +1194,11 @@
           "app": "Tangible",
           "app_ref": "Tangible: AI Photo Book Maker",
           "what": "올해 사진·즐겨찾기 불러오기와 'Your 2026' 연간 카드"
+        },
+        {
+          "app": "Aura",
+          "app_ref": "Aura Frames",
+          "what": "서버 스마트 추천 목록 + 추천 알림 작업, 앨범 자동 추가 설정"
         }
       ]
     },
@@ -1479,6 +1504,30 @@
         4,
         12,
         10
+      ]
+    },
+    {
+      "app": "Aura Frames",
+      "app_ref": "Aura Frames",
+      "package": "com.pushd.client",
+      "version": "4.7.4641",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + ko·ja + xxhdpi)",
+      "signature": "APK v2/v3 서명, pushd, inc(미국 뉴욕, Aura 운영사) 인증서 · SHA-256 a235ab82…",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석과 DEX 문자열 확인. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "기기 안 얼굴 검출: ML Kit Face Detection 번들 모델(검출·윤곽선·랜드마크)과 네이티브 엔진 내장, 눈 뜸·미소 확률을 읽음",
+        "자체 얼굴 특징값 모델(face_features.tflite) + 기기 안 '인물 검색' DB → 사진 추가 화면의 인물 검색 줄(People search bar)",
+        "기기 안 이미지 품질 분석 이벤트와 흐림 정도(blurriness) 항목 → 품질 판정을 기기에서 하는 구성",
+        "기기 사진 DB에 '중복 묶음 id' 칸이 있고, 중복 사진을 접었다 펼치는 처리 → 사진 선택 화면에서 중복을 1장으로 접음",
+        "스마트 추천(Smart Suggestions)은 서버 추천 목록 + 추천 알림 작업, 앨범 자동 추가(Auto-Add) 설정",
+        "권한: READ_MEDIA_IMAGES/VIDEO, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+      ],
+      "features": [
+        2,
+        9,
+        4,
+        1,
+        12
       ]
     }
   ]
