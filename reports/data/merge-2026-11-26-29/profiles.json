@@ -582,7 +582,7 @@
     "developer": "SNAPS/위블링 · 한국",
     "scale": "Play 4.4 · 100만+ 다운로드",
     "price": "앱 무료 · 포토북 27,900원~(정가)",
-    "ai": "선별 처리 위치 미확인(업로드 후 추정)",
+    "ai": "분석은 서버(썸네일 전송), 결과는 기기 캐시",
     "selection_features": [
       "시기별 폴더째 일괄 투입",
       "흔들림·유사 컷 자동 제외",
@@ -607,7 +607,7 @@
       "progress": "no",
       "swipe": "no"
     },
-    "caution": "검토 화면 존재 미확인, 자사 블로그 근거"
+    "caution": "처리 구조는 APK로 확인, 선별 기준은 비공개"
   },
   {
     "name": "Chatbooks (Smart Select)",

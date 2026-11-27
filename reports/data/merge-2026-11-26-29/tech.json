@@ -413,6 +413,11 @@
           "app": "FamilyAlbum",
           "app_ref": "FamilyAlbum (みてね, 패밀리 앨범)",
           "what": "포토북·인화·달력 추천은 서버 추천 목록으로 받음"
+        },
+        {
+          "app": "스냅스",
+          "app_ref": "스냅스 SNAPS",
+          "what": "썸네일만 서버 분석 API로 보내고 결과를 기기 DB에 캐시, 큐레이션 필터로 선정"
         }
       ]
     },
@@ -619,6 +624,11 @@
           "app": "Google 포토",
           "app_ref": "Google 포토 (Google Photos)",
           "what": "콜라주 배치 계산 모듈 + 사진 수별(2~6장) 그리드 템플릿 내장"
+        },
+        {
+          "app": "스냅스",
+          "app_ref": "스냅스 SNAPS",
+          "what": "분석 뒤 추천 템플릿 → 페이지 레이아웃 → 표지·배경 순서로 책 구성"
         }
       ]
     },
@@ -686,6 +696,11 @@
           "app": "MYBOX",
           "app_ref": "네이버 MYBOX",
           "what": "하이라이트 '추천 안 받기' 동작과 추천 켜기/끄기 설정 저장"
+        },
+        {
+          "app": "스냅스",
+          "app_ref": "스냅스 SNAPS",
+          "what": "고른 사진 이력을 기기 DB에 따로 저장(PickedHistory)"
         }
       ]
     },
@@ -973,6 +988,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "얼굴 크기·가장자리 잘림을 베스트컷 점수에 반영"
+        },
+        {
+          "app": "스냅스",
+          "app_ref": "스냅스 SNAPS",
+          "what": "책 구성 마지막 단계에서 얼굴 중앙 맞춤 작업 실행"
         }
       ]
     },
@@ -1124,6 +1144,11 @@
           "app": "짜잔",
           "app_ref": "짜잔 ZzaZan",
           "what": "'올해의 여정'을 오프라인 지도(PMTiles·MapLibre)로 기기 안에서 생성"
+        },
+        {
+          "app": "스냅스",
+          "app_ref": "스냅스 SNAPS",
+          "what": "월간 구독에서 '이미 고른 사진 기록'으로 달마다 중복 선정 방지(추정)"
         }
       ]
     },
@@ -1381,6 +1406,30 @@
         9,
         10,
         12
+      ]
+    },
+    {
+      "app": "스냅스",
+      "app_ref": "스냅스 SNAPS",
+      "package": "com.snaps.mobile.kr",
+      "version": "3.8.9",
+      "source": "사용자 폰에서 추출한 Google Play 설치본(.apks: base + arm64 + xxhdpi)",
+      "signature": "APK v2/v3 서명, SNAPS 자체 인증서(CN=Snaps) · SHA-256 8b812a82…",
+      "method": "REA 6.10.1 + JADX 엔진(jadx-headless-mcp 0.7.1) 정적 분석. 앱은 실행하지 않았고 코드는 옮기지 않았다.",
+      "findings": [
+        "앱 안에 AI 모델이 없음: 사진 분석은 서버, 기기는 후보 수집·썸네일 업로드·결과 저장을 맡는 구조",
+        "월간 AI 구독 흐름: 갤러리 후보 수집(촬영일·GPS 읽기) → 썸네일만 인코딩해 분석 API로 전송 → 결과를 기기 DB에 캐시 → 큐레이션 필터로 후보 선정",
+        "'이미 고른 사진 기록(PickedHistory)' 테이블이 따로 있어, 달이 바뀌어도 앞서 고른 사진을 다시 고르지 않게 관리하는 것으로 보임",
+        "AI 추천 포토북 작업 순서: 프로젝트 생성 → 썸네일 업로드·분석 → 추천 템플릿 → 페이지 레이아웃 → 표지 → 배경 → 얼굴 중앙 맞춤",
+        "백그라운드 사진 정보 동기화 서비스(와이파이 상태 감지, EXIF 캐시 DB)",
+        "권한: READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED, ACCESS_MEDIA_LOCATION"
+      ],
+      "features": [
+        3,
+        6,
+        10,
+        12,
+        7
       ]
     }
   ]
