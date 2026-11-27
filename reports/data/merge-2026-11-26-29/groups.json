@@ -1,19 +1,19 @@
 {
   "order": [
-    "아이 성장 앨범",
+    "가족 앨범",
     "범용 갤러리·클라우드",
     "정리·선별 앱",
     "포토북·이어북",
     "영상·액자·여행",
-    "기타 참고"
+    "업무·기관용"
   ],
   "groups": {
-    "Bebememo (베베메모)": "아이 성장 앨범",
-    "쑥쑥찰칵 (Babyfolio)": "아이 성장 앨범",
-    "FamilyAlbum (みてね, 패밀리 앨범)": "아이 성장 앨범",
-    "TimeHut - Baby Album": "아이 성장 앨범",
-    "Tinybeans Private Family Album": "아이 성장 앨범",
-    "짜잔 ZzaZan": "아이 성장 앨범",
+    "Bebememo (베베메모)": "가족 앨범",
+    "쑥쑥찰칵 (Babyfolio)": "가족 앨범",
+    "FamilyAlbum (みてね, 패밀리 앨범)": "가족 앨범",
+    "TimeHut - Baby Album": "가족 앨범",
+    "Tinybeans Private Family Album": "가족 앨범",
+    "짜잔 ZzaZan": "가족 앨범",
     "Google 포토 (Google Photos)": "범용 갤러리·클라우드",
     "삼성 갤러리 (Samsung Gallery)": "범용 갤러리·클라우드",
     "Slidebox - Photo Cleaner": "정리·선별 앱",
@@ -26,8 +26,8 @@
     "스냅스 SNAPS": "포토북·이어북",
     "Chatbooks (Smart Select)": "포토북·이어북",
     "PastBook: 1-Click Photo Book": "포토북·이어북",
-    "PhotoKip 포토킵": "기타 참고",
-    "키즈로그 - 사진분류, 알림장, 보육일지": "기타 참고",
+    "PhotoKip 포토킵": "업무·기관용",
+    "키즈로그 - 사진분류, 알림장, 보육일지": "업무·기관용",
     "네이버 MYBOX": "범용 갤러리·클라우드",
     "Tangible: AI Photo Book Maker": "포토북·이어북",
     "Journi Print - 포토북": "포토북·이어북",
