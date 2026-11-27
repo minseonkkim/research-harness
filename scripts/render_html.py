@@ -138,6 +138,19 @@ for g in order:
         info = "".join(f"<div><dt>{k}</dt><dd>{inline(p.get(f, '') or '–')}</dd></div>"
                        for k, f in [("정리 분석 처리 방식", "ai")])
         feats = "".join(f"<li>{inline(x)}</li>" for x in p.get("selection_features", []))
+        fl = p.get("flow") or {}
+        ACT = {"자동": "a-auto", "사용자": "a-user", "자동+확인": "a-mix"}
+        flow_html = ""
+        if fl.get("steps"):
+            flow_html = (
+                '<div class="flow"><h4>사진 정리 흐름</h4>'
+                + (f'<p class="ftitle">{inline(fl.get("title", ""))}</p>' if fl.get("title") else "")
+                + '<ol class="fsteps">' + "".join(
+                    f'<li><div class="fs-head"><span class="fs-name">{esc(s.get("name", ""))}</span>'
+                    f'<span class="actor {ACT.get(s.get("actor"), "a-mix")}">{esc(s.get("actor", ""))}</span></div>'
+                    f'<p>{inline(s.get("detail", ""))}</p></li>' for s in fl["steps"]) + "</ol>"
+                + (f'<p class="fbasis">근거 · {inline(fl["basis"])}</p>' if fl.get("basis") else "")
+                + "</div>")
         take = "".join(f"<li>{inline(x)}</li>" for x in p.get("takeaways", []))
         cons = "".join(f"<li>{inline(x)}</li>" for x in p.get("cons", []))
         raw = []
@@ -157,7 +170,8 @@ for g in order:
             + f'</div><h3>{esc(r["name"])}</h3><p class="one">{inline(p.get("one_liner", ""))}</p></header>'
             + store_buttons(r["name"])
             + f'<dl class="info">{info}</dl>'
-            + (f'<h4>사진 정리 기능</h4><ul class="feats">{feats}</ul>' if feats else "")
+            + flow_html
+            + (f'<h4>주요 정리 기능</h4><ul class="feats chiplist">{feats}</ul>' if feats else "")
             + (f'<div class="take"><h4>이어북에 참고할 점</h4><ul>{take}</ul></div>' if take else "")
             + (f'<h4>정리 기능의 한계</h4><ul class="cons">{cons}</ul>' if cons else "")
             + (f'<p class="caution">⚠ {inline(p["caution"])}</p>' if p.get("caution") else "")
@@ -165,7 +179,10 @@ for g in order:
             "</article>")
     cards.append(f'<div class="grp-block" data-group="{esc(g)}"><h3 class="gh">{esc(g)} <span class="count">{len(items)}</span></h3>'
                  f'<div class="apps">{"".join(cs)}</div></div>')
-section("apps", "1. 앱별 설명", "".join(cards), '<p class="lead">앨범 정리 기능만 다룬다. 설치 링크 · 사진 정리 기능 · 이어북에 참고할 점 · 정리 기능의 한계 순서. 원문과 출처는 카드 아래 펼치기.</p>')
+section("apps", "1. 앱별 설명", "".join(cards),
+        '<p class="lead">앨범 정리 기능만 다룬다. 설치 링크 · 사진 정리 흐름(단계별) · 주요 기능 · 이어북에 참고할 점 · 한계 순서. '
+        '단계 표시: <span class="actor a-auto">자동</span> 앱이 처리 · <span class="actor a-mix">자동+확인</span> 앱이 제안하고 사용자가 확인 · '
+        '<span class="actor a-user">사용자</span> 사용자가 직접. 원문과 출처는 카드 아래 펼치기.</p>')
 
 # 2. 이어북 추천 기능 (추천순)
 TIER = {"필수": "t1", "추천": "t2", "고려": "t3"}
@@ -342,6 +359,17 @@ details.big>summary{padding:14px 18px;cursor:pointer;font-weight:600}.prose{padd
 .mono li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
 .src{font-size:12px;background:var(--soft);border-radius:5px;padding:0 6px;margin-left:4px}
 @media (max-width:860px){.tech{padding:14px;gap:12px}.tgrid{grid-template-columns:1fr}.back{margin-left:0}}
+.flow{margin-top:14px}.ftitle{margin:0 0 8px;font-size:13.5px;color:var(--accent);font-weight:600}
+.fsteps{list-style:none;counter-reset:fs;padding:0;margin:0;position:relative}
+.fsteps li{counter-increment:fs;position:relative;padding:0 0 10px 34px}
+.fsteps li::before{content:counter(fs);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--asoft);color:var(--accent);font-size:12px;font-weight:700;display:grid;place-items:center}
+.fsteps li:not(:last-child)::after{content:"";position:absolute;left:10.5px;top:25px;bottom:2px;width:1px;background:var(--line)}
+.fs-head{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.fs-name{font-weight:600;font-size:14.5px}
+.fsteps p{margin:2px 0 0;font-size:14px;color:var(--ink);line-height:1.55}
+.actor{font-size:11px;font-weight:700;border-radius:5px;padding:0 6px;line-height:1.7}
+.a-auto{background:var(--asoft);color:var(--accent)}.a-user{background:var(--soft);color:var(--muted)}.a-mix{background:var(--evs);color:var(--ev)}
+.fbasis{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.chiplist{list-style:none;padding:0!important;display:flex;flex-wrap:wrap;gap:5px}.chiplist li{margin:0!important;font-size:13px;background:var(--soft);border-radius:6px;padding:2px 8px}
 .muted{color:var(--muted);font-size:13px}
 .theme{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
 footer{color:var(--muted);font-size:13px;text-align:center}
